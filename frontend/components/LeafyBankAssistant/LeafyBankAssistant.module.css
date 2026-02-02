@@ -1,0 +1,55 @@
+.container {
+  padding: 24px;
+  position: relative;
+  z-index: 1000;
+}
+
+:global(.leafy-ui-modal) {
+  z-index: 1001 !important;
+}
+
+.title {
+  margin-bottom: 16px;
+}
+
+.description {
+  margin-bottom: 16px;
+}
+
+.featureList {
+  margin-top: 16px;
+  gap: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.featureTitle {
+  font-weight: 600;
+}
+
+.featureItem {
+  margin-left: 12px;
+}
+
+.buttonContainer {
+  margin-top: 24px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+
+.primaryButton {
+  padding: 8px 16px;
+  background: #007856;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 150ms ease;
+}
+
+.primaryButton:hover {
+  background-color: #005a3d;
+}

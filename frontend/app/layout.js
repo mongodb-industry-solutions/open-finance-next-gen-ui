@@ -1,5 +1,6 @@
 import "./globals.css";
 import { Providers } from "./providers";
+import NavBar from "@/components/infoWizard/NavBar/NavBar";
 
 // TODO: Update metadata with actual demo details
 export const metadata = {
@@ -11,7 +12,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <NavBar />
+          <div className="appContent">{children}</div>
+        </Providers>
       </body>
     </html>
   );

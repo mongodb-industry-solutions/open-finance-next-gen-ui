@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@leafygreen-ui/button": "^23.1.6",
+    "@leafygreen-ui/card": "^13.3.0",
     "@leafygreen-ui/icon": "^13.4.0",
     "@leafygreen-ui/leafygreen-provider": "^4.0.7",
     "@leafygreen-ui/modal": "^17.1.7",
