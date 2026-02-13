@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "bootstrap/dist/css/bootstrap.min.css";
 
 /* Space at top so content starts below fixed navbar (navbar height = 64px) */
 .appContent {

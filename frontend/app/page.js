@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./page.module.css";
 import { H1, H3, H2, Body, Subtitle } from "@leafygreen-ui/typography";
 import Card from "@leafygreen-ui/card";
@@ -8,8 +8,9 @@ import Image from "next/image";
 import Icon from "@leafygreen-ui/icon";
 import Link from "next/link";
 import LeafyBankAssistant from "../components/LeafyBankAssistant/LeafyBankAssistant";
+import Login from "@/components/Login/Login";
 
-export default function Home() {
+const HomeContent = () => {
   const [modalOpen, setModalOpen] = useState(false);
   return (
     <main className={styles.container}>
@@ -160,5 +161,28 @@ export default function Home() {
 
       <LeafyBankAssistant isOpen={modalOpen} onClose={() => setModalOpen(false)} />
     </main>
+  );
+};
+
+export default function Home() {
+  const [userSelected, setUserSelected] = useState(false);
+
+  useEffect(() => {
+    // Check if user was previously selected
+    const selectedUser = localStorage.getItem('selectedUser');
+    if (selectedUser) {
+      setUserSelected(true);
+    }
+  }, []);
+
+  const handleUserSelected = () => {
+    setUserSelected(true);
+  };
+
+  return (
+    <>
+      {!userSelected && <Login onUserSelected={handleUserSelected} />}
+      {userSelected && <HomeContent />}
+    </>
   );
 }
