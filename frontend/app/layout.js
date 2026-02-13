@@ -1,10 +1,10 @@
 import "./globals.css";
 import { Providers } from "./providers";
-import NavBar from "@/components/infoWizard/NavBar/NavBar";
+import NavBar from "@/components/NavBar/NavBar";
 
 // TODO: Update metadata with actual demo details
 export const metadata = {
-  title: "Demo Template",
+  title: "Leafy Bank",
   description: "Industry Solutions Demo Template for NextJS",
 };
 
