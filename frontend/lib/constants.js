@@ -12,7 +12,7 @@ export const USER_MAP = {
         Role: "Banked Customer"
     },
     "66fe219d625d93a100528224": {
-        UserName: "gracehop",
+        UserName: "hellyrig",
         Role: "Unbanked Customer"
     }
 };

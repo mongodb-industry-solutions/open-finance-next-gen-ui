@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./page.module.css";
 import { H2, Body, Subtitle } from "@leafygreen-ui/typography";
 import Card from "@leafygreen-ui/card";
@@ -253,12 +253,15 @@ const HomeContent = () => {
 };
 
 export default function Home() {
-  const { selectedUser } = useUser();
+  const { selectedUser, clearUser } = useUser();
+  const [loginDone, setLoginDone] = useState(false);
+
+  useEffect(() => { clearUser(); }, []);
 
   return (
     <>
-      {!selectedUser && <Login />}
-      {selectedUser && <HomeContent />}
+      {!loginDone && <Login onDone={() => setLoginDone(true)} />}
+      {selectedUser && loginDone && <HomeContent />}
     </>
   );
 }

@@ -10,7 +10,7 @@ import { USER_LIST } from "@/lib/constants";
 import Banner from "@leafygreen-ui/banner";
 import { useUser } from "@/lib/context/UserContext";
 
-const Login = () => {
+const Login = ({ onDone }) => {
     const { selectUser } = useUser();
     const [open, setOpen] = useState(true);
     const [selectedLocal, setSelectedLocal] = useState(null);
@@ -19,6 +19,7 @@ const Login = () => {
         setSelectedLocal(user);
         selectUser(user);
         setOpen(false);
+        onDone?.();
     };
 
     return (
@@ -73,7 +74,7 @@ const Login = () => {
 
                     <div className={styles.parentContainer}>
                         <Banner variant="info" className="mb-3">
-                            For the best experience, we recommend logging in as &quot;fridaklo&quot; or &quot;gracehop&quot; to explore different scenarios!
+                            For the best experience, we recommend logging in as &quot;fridaklo&quot; or &quot;hellyrig&quot; to explore different scenarios!
                         </Banner>
                     </div>
 
