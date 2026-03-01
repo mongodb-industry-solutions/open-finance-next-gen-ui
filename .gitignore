@@ -13,6 +13,7 @@ SECURITY_CHECK_README.md
 
 # claude
 **/.claude
+CLAUDE.md
 
 # task-def.json
 **/task-def.json
@@ -234,3 +235,4 @@ frontend/next-env.d.ts
 
 # Misc
 *.pem
+_state.md
