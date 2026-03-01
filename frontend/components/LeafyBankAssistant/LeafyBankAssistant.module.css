@@ -247,6 +247,23 @@
   font-size: 11px;
 }
 
+/* ─── Waiting for Bank Login ─── */
+
+.waitingState {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+}
+
+.waitingHint {
+  margin-top: 6px;
+  padding-left: 22px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
 /* ─── Interrupt Box ─── */
 
 .interruptBox {

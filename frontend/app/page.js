@@ -15,7 +15,7 @@ import { formatCurrency } from "@/lib/api/format";
 
 const HomeContent = () => {
   const [modalOpen, setModalOpen] = useState(false);
-  const { totalBalance, totalDebt, bankAccounts, creditCards, creditScore, loading } = useHomeData();
+  const { totalBalance, totalDebt, bankAccounts, creditCards, creditScore, loans, loading } = useHomeData();
 
   return (
     <main className={styles.container}>
@@ -216,7 +216,27 @@ const HomeContent = () => {
                     />
                     <Subtitle>Loans</Subtitle>
                   </div>
-                  <div className={styles.productBody}></div>
+                  <div className={styles.accountList}>
+                    {loans.length > 0 ? (
+                      loans.map((loan, i) => (
+                        <div key={i} className={styles.accountRow}>
+                          <div className={styles.accountInfo}>
+                            <Body>{loan.name}</Body>
+                            <Body className={styles.cardBodyGray}>
+                              {loan.institution}
+                            </Body>
+                          </div>
+                          <div className={styles.accountAmount}>
+                            <Subtitle>{formatCurrency(loan.balance)}</Subtitle>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <Body className={styles.cardBodyGray}>
+                        Connect a bank via chatbot to see loans
+                      </Body>
+                    )}
+                  </div>
                 </div>
               </Card>
             </Link>

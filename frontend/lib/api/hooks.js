@@ -175,7 +175,7 @@ export function useHomeData() {
     .reduce((sum, a) => sum + Math.abs(a.AccountBalance), 0);
 
   const externalDebt = externalProducts.reduce(
-    (sum, p) => sum + (p.OutstandingBalance || p.outstanding_balance || 0),
+    (sum, p) => sum + (p.ProductBalance || 0),
     0
   );
 
@@ -185,12 +185,19 @@ export function useHomeData() {
 
   const creditCards = accounts.filter((a) => a.AccountType === "CreditCard");
 
+  const loans = externalProducts.map((p) => ({
+    name: p.ProductName || p.ProductType || "Loan",
+    balance: p.ProductBalance || 0,
+    institution: p.ProductBank || "",
+  }));
+
   return {
     totalBalance,
     totalDebt: internalDebt + externalDebt,
     bankAccounts,
     creditCards,
     creditScore,
+    loans,
     loading: accountsLoading,
   };
 }
@@ -273,16 +280,16 @@ export function useLoansPageData() {
   const { externalProducts, loading } = useExternalProducts();
 
   const loanCards = externalProducts.map((p) => ({
-    title: p.ProductType || p.product_type || "Loan",
-    number: p.ContractNumber || p.contract_number || p._id || "",
-    amount: p.OutstandingBalance || p.outstanding_balance || 0,
+    title: p.ProductName || p.ProductType || "Loan",
+    number: p.ProductId || p._id || "",
+    amount: p.ProductBalance || 0,
   }));
 
   const loanTableRows = externalProducts.map((p) => ({
-    type: p.ProductType || p.product_type || "Loan",
-    institution: p.Institution || p.institution || "\u2014",
-    contract: p.ContractNumber || p.contract_number || "\u2014",
-    outstanding: p.OutstandingBalance || p.outstanding_balance || 0,
+    type: p.LoanSubType || p.ProductType || "Loan",
+    institution: p.ProductBank || "\u2014",
+    contract: p.ProductId || "\u2014",
+    outstanding: p.ProductBalance || 0,
   }));
 
   return { loanCards, loanTableRows, loading, activeConsentId };
