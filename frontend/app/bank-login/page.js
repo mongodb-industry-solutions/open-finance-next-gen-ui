@@ -1,13 +1,12 @@
 "use client";
 
-import React, { Suspense, useState, useEffect, useCallback } from "react";
+import React, { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { H2, Body, Subtitle } from "@leafygreen-ui/typography";
 import Card from "@leafygreen-ui/card";
 import Button from "@leafygreen-ui/button";
 import styles from "./page.module.css";
-import { coreApi, chatStream } from "@/lib/api/client";
-import { useUser } from "@/lib/context/UserContext";
+import { useBankLogin } from "@/lib/api/useBankLogin";
 
 export default function BankLoginPage() {
   return (
@@ -19,190 +18,25 @@ export default function BankLoginPage() {
 
 function BankLoginContent() {
   const searchParams = useSearchParams();
-  const { selectedUser, updateBearerToken } = useUser();
 
-  // Query params from chatbot redirect
+  // Extract URL params (routing concern)
   const consentId = searchParams.get("consent_id");
   const institutionName = searchParams.get("institution_name");
   const threadId = searchParams.get("thread_id");
 
-  // State
-  const [step, setStep] = useState("login"); // "login" | "fetching" | "consent" | "processing" | "done"
-  const [token, setToken] = useState(null);
-  const [tokenError, setTokenError] = useState(null);
-  const [consentData, setConsentData] = useState(null);
-  const [statusText, setStatusText] = useState("");
-
-  // Auto-fetch bearer token on mount
-  useEffect(() => {
-    if (!selectedUser?.name) return;
-
-    setStep("fetching");
-    setStatusText("Connecting to bank...");
-
-    coreApi(
-      "openfinance/public/get-authorization",
-      { params: { user_identifier: selectedUser.name } }
-    ).then(({ data, error }) => {
-      if (data?.BearerToken) {
-        setToken(data.BearerToken);
-        updateBearerToken(data.BearerToken);
-        setStep("login");
-        setStatusText("");
-      } else {
-        setTokenError(error || "Could not retrieve authorization token");
-        setStep("login");
-      }
-    });
-  }, [selectedUser?.name]);
-
-  // Process SSE stream to extract consent interrupt
-  const processSSEForConsent = useCallback(async (response) => {
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = "";
-
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const parts = buffer.split("\n\n");
-        buffer = parts.pop();
-
-        for (const part of parts) {
-          for (const line of part.split("\n")) {
-            if (line.startsWith("data: ")) {
-              try {
-                const event = JSON.parse(line.slice(6));
-                if (event.type === "interrupt" && event.payload?.type === "CONSENT_APPROVAL") {
-                  setConsentData(event.payload);
-                  setStep("consent");
-                  setStatusText("");
-                } else if (event.type === "response") {
-                  // Agent responded without interrupt — done
-                  setStep("done");
-                  setStatusText("Complete");
-                } else if (event.type === "status") {
-                  setStatusText(event.payload?.message || "Processing...");
-                }
-              } catch {
-                // skip malformed
-              }
-            }
-          }
-        }
-      }
-    } finally {
-      reader.releaseLock();
-    }
-  }, []);
-
-  // Step 1: Simulate bank login — resume the BANK_LOGIN interrupt
-  async function handleBankLogin() {
-    if (!threadId || !selectedUser?.name) return;
-
-    setStep("processing");
-    setStatusText("Authenticating with bank...");
-
-    try {
-      const res = await chatStream("chat/stream/resume", {
-        thread_id: threadId,
-        user_id: selectedUser.name,
-        resume_data: { status: "success" },
-        profile: null,
-      });
-      await processSSEForConsent(res);
-    } catch (e) {
-      setTokenError(`Login failed: ${e.message}`);
-      setStep("login");
-    }
-  }
-
-  // Step 2: Handle consent approval/decline
-  async function handleConsentDecision(approved) {
-    if (!threadId || !selectedUser?.name) return;
-
-    setStep("processing");
-    setStatusText(approved ? "Approving consent..." : "Declining consent...");
-
-    try {
-      const res = await chatStream("chat/stream/resume", {
-        thread_id: threadId,
-        user_id: selectedUser.name,
-        resume_data: { approved },
-        profile: null,
-      });
-
-      // Parse SSE stream to extract the final AI response
-      let finalResponse = null;
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          buffer += decoder.decode(value, { stream: true });
-          const parts = buffer.split("\n\n");
-          buffer = parts.pop();
-
-          for (const part of parts) {
-            for (const line of part.split("\n")) {
-              if (line.startsWith("data: ")) {
-                try {
-                  const event = JSON.parse(line.slice(6));
-                  if (event.type === "response") {
-                    finalResponse = event.payload?.text || null;
-                  }
-                } catch {
-                  // skip malformed
-                }
-              }
-            }
-          }
-        }
-      } finally {
-        reader.releaseLock();
-      }
-
-      // Send completion to the original tab's chatbot via BroadcastChannel
-      const channel = new BroadcastChannel("leafy-bank-consent");
-      if (approved && consentData?.consent_id) {
-        channel.postMessage({
-          type: "consent_complete",
-          response: finalResponse,
-          consentId: consentData.consent_id,
-          institution: consentData.source_institution || institutionName,
-          bearerToken: token,
-        });
-      }
-      channel.close();
-
-      setStep("done");
-      setStatusText(approved ? "Consent approved!" : "Consent declined.");
-    } catch (e) {
-      setTokenError(`Error: ${e.message}`);
-      setStep("consent");
-    }
-  }
-
-  // Close this tab (opened from chatbot)
-  function handleCloseTab() {
-    window.close();
-  }
+  const {
+    step, token, tokenError, consentData, statusText, isValid,
+    handleBankLogin, handleConsentDecision, handleCloseTab,
+  } = useBankLogin({ consentId, institutionName, threadId });
 
   // Guard: no params or no user
-  if (!consentId || !institutionName || !threadId) {
+  if (!isValid) {
     return (
       <main className={styles.container}>
         <Card className={styles.card}>
           <H2>Invalid Request</H2>
           <Body>Missing required parameters. Please use the chatbot to initiate a bank connection.</Body>
-          <Button variant="primary" onClick={() => router.push("/")} style={{ marginTop: 16 }}>
+          <Button variant="primary" onClick={() => { window.location.href = "/"; }} style={{ marginTop: 16 }}>
             Return Home
           </Button>
         </Card>

@@ -6,7 +6,7 @@ import { Modal, Container } from 'react-bootstrap';
 import { H2, Subtitle, Description } from '@leafygreen-ui/typography';
 import styles from './Login.module.css';
 import User from '@/components/User/User';
-import { USER_MAP } from "@/lib/constants";
+import { USER_LIST } from "@/lib/constants";
 import Banner from "@leafygreen-ui/banner";
 import { useUser } from "@/lib/context/UserContext";
 
@@ -14,13 +14,6 @@ const Login = () => {
     const { selectUser } = useUser();
     const [open, setOpen] = useState(true);
     const [selectedLocal, setSelectedLocal] = useState(null);
-
-    const users = Object.entries(USER_MAP).map(([id, details]) => ({
-        id,
-        name: details.UserName,
-        bearerToken: details.BearerToken,
-        role: details.Role
-    }));
 
     const handleUserSelect = (user) => {
         setSelectedLocal(user);
@@ -67,7 +60,7 @@ const Login = () => {
                     </Description>
 
                     <div className={`${styles.usersContainer}`}>
-                        {users.map(user => (
+                        {USER_LIST.map(user => (
                             <User
                                 user={user}
                                 isSelectedUser={selectedLocal && selectedLocal.id === user.id}
