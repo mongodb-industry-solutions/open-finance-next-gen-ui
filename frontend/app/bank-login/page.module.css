@@ -79,6 +79,8 @@
   }
 }
 
+/* PLACEHOLDER — data team added consent approval box.
+   Colleague to restyle to match design system. */
 .consentBox {
   background: #fffbeb;
   border: 1px solid #fde68a;
@@ -99,6 +101,8 @@
   color: #92400e;
 }
 
+/* PLACEHOLDER — data team added action buttons layout.
+   Colleague to restyle to match design system. */
 .actions {
   display: flex;
   gap: 12px;
@@ -109,6 +113,8 @@
   width: 100%;
 }
 
+/* PLACEHOLDER — data team added completion state box.
+   Colleague to restyle to match design system. */
 .doneBox {
   background: #f0fdf4;
   border: 1px solid #bbf7d0;

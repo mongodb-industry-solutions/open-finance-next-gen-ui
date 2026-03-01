@@ -51,6 +51,8 @@
   gap: 12px;
 }
 
+/* PLACEHOLDER — data team added profile selector dropdown.
+   Colleague to restyle to match design system. */
 .profileSelect {
   padding: 4px 8px;
   border: 1px solid rgba(0, 0, 0, 0.15);
@@ -66,6 +68,8 @@
   border-color: #00684a;
 }
 
+/* PLACEHOLDER — data team added consent connection badge.
+   Colleague to restyle to match design system. */
 .consentBadge {
   display: inline-flex;
   align-items: center;

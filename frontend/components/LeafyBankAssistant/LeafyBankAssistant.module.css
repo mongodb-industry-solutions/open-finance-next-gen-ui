@@ -97,7 +97,8 @@
   line-height: 1.5;
 }
 
-/* Markdown content inside assistant messages */
+/* PLACEHOLDER — data team added markdown rendering styles for chatbot responses.
+   Colleague to restyle to match design system. */
 .messageText p {
   margin: 0 0 8px 0;
 }
@@ -150,7 +151,8 @@
   font-weight: 600;
 }
 
-/* ─── Suggestion Chips ─── */
+/* PLACEHOLDER — data team added suggestion chips for quick-start prompts.
+   Colleague to restyle to match design system. */
 
 .suggestions {
   display: flex;
@@ -176,7 +178,8 @@
   border-color: #86efac;
 }
 
-/* ─── Step Indicator ─── */
+/* PLACEHOLDER — data team added step indicator + spinner for SSE progress display.
+   Colleague to restyle to match design system. */
 
 .stepIndicator {
   background: #f9fafb;
@@ -247,7 +250,8 @@
   font-size: 11px;
 }
 
-/* ─── Waiting for Bank Login ─── */
+/* PLACEHOLDER — data team added waiting-for-bank-login state.
+   Colleague to restyle to match design system. */
 
 .waitingState {
   background: #f0fdf4;
@@ -264,7 +268,8 @@
   color: #6b7280;
 }
 
-/* ─── Interrupt Box ─── */
+/* PLACEHOLDER — data team added interrupt/consent-approval box.
+   Colleague to restyle to match design system. */
 
 .interruptBox {
   background: #fffbeb;
