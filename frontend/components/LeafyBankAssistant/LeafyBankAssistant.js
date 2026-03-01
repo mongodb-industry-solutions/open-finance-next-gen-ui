@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import Modal from "@leafygreen-ui/modal";
 import { H2, Body } from "@leafygreen-ui/typography";
 import Button from "@leafygreen-ui/button";
@@ -23,12 +22,12 @@ const WELCOME_MESSAGE =
   "Hi there! I'm your Open Finance assistant. I can help you connect bank accounts, view transactions, and analyze your financial data. How can I help you today?";
 
 export default function LeafyBankAssistant({ isOpen, onClose }) {
-  const router = useRouter();
-  const { selectedUser, profile, setConsent, chatMessages, setChatMessages, chatThreadId, setChatThreadId } = useUser();
+  const { selectedUser, profile, setConsent, updateBearerToken, chatMessages, setChatMessages, chatThreadId, setChatThreadId } = useUser();
 
   // Local UI state
   const [inputValue, setInputValue] = useState("");
   const [sending, setSending] = useState(false);
+  const [waitingForBankLogin, setWaitingForBankLogin] = useState(false);
 
   // Derive messages from context, falling back to welcome message for fresh sessions
   const messages = chatMessages || [{ type: "assistant", text: WELCOME_MESSAGE }];
@@ -45,7 +44,7 @@ export default function LeafyBankAssistant({ isOpen, onClose }) {
   // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, stepIndicator, interrupt]);
+  }, [messages, stepIndicator, interrupt, waitingForBankLogin]);
 
   // Focus input when modal opens
   useEffect(() => {
@@ -53,6 +52,42 @@ export default function LeafyBankAssistant({ isOpen, onClose }) {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isOpen]);
+
+  // --- BroadcastChannel: listen for consent completion from bank-login tab ---
+  useEffect(() => {
+    const channel = new BroadcastChannel("leafy-bank-consent");
+
+    channel.onmessage = (event) => {
+      const { type, response, consentId, institution, bearerToken } = event.data;
+
+      if (type === "consent_complete") {
+        // Add the final AI response to chat messages
+        if (response) {
+          setMessages((prev) => [
+            ...(prev || []),
+            { type: "assistant", text: response },
+          ]);
+        }
+
+        // Update bearer token if provided
+        if (bearerToken) {
+          updateBearerToken(bearerToken);
+        }
+
+        // Bridge consent to dashboard
+        if (consentId) {
+          setConsent(consentId, "authorized", institution);
+        }
+
+        // Clear waiting state
+        setWaitingForBankLogin(false);
+        setSending(false);
+      }
+    };
+
+    return () => channel.close();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // --- SSE Stream Processing (ported from chatbot.html) ---
 
@@ -148,15 +183,14 @@ export default function LeafyBankAssistant({ isOpen, onClose }) {
       case "interrupt":
         setStepIndicator(null);
         if (payload.type === "BANK_LOGIN" && threadIdRef.current) {
-          // Redirect to bank login page
+          // Open bank login in a NEW TAB — keeps chatbot modal + state alive
           const params = new URLSearchParams({
             consent_id: payload.consent_id || "",
             institution_name: payload.institution_name || "",
             thread_id: threadIdRef.current,
           });
-          setSending(false);
-          onClose();
-          router.push(`/bank-login?${params.toString()}`);
+          setWaitingForBankLogin(true);
+          window.open(`/bank-login?${params.toString()}`, "_blank");
         } else {
           setInterrupt(payload);
         }
@@ -359,7 +393,20 @@ export default function LeafyBankAssistant({ isOpen, onClose }) {
             </div>
           )}
 
-          {/* Interrupt Box — only CONSENT_APPROVAL shown inline; BANK_LOGIN redirects to /bank-login */}
+          {/* Waiting for bank login in other tab */}
+          {waitingForBankLogin && (
+            <div className={styles.waitingState}>
+              <div className={styles.stepHeader}>
+                <div className={styles.spinner} />
+                <span>Waiting for bank login in the other tab...</span>
+              </div>
+              <Body className={styles.waitingHint}>
+                Complete the login and consent approval in the new tab. This chat will update automatically.
+              </Body>
+            </div>
+          )}
+
+          {/* Interrupt Box — only CONSENT_APPROVAL shown inline */}
           {interrupt && interrupt.type === "CONSENT_APPROVAL" && (
             <div className={styles.interruptBox}>
               <h4 className={styles.interruptTitle}>
@@ -414,17 +461,17 @@ export default function LeafyBankAssistant({ isOpen, onClose }) {
           <input
             ref={inputRef}
             type="text"
-            placeholder={sending ? "Waiting for response..." : "Type your message..."}
+            placeholder={waitingForBankLogin ? "Waiting for bank login..." : sending ? "Waiting for response..." : "Type your message..."}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
             className={styles.chatInput}
-            disabled={sending}
+            disabled={sending || waitingForBankLogin}
           />
           <Button
             variant="primary"
             onClick={() => handleSend()}
-            disabled={sending || !inputValue.trim()}
+            disabled={sending || waitingForBankLogin || !inputValue.trim()}
           >
             Send
           </Button>

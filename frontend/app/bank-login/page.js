@@ -1,7 +1,7 @@
 "use client";
 
 import React, { Suspense, useState, useEffect, useCallback } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { H2, Body, Subtitle } from "@leafygreen-ui/typography";
 import Card from "@leafygreen-ui/card";
 import Button from "@leafygreen-ui/button";
@@ -19,8 +19,7 @@ export default function BankLoginPage() {
 
 function BankLoginContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const { selectedUser, setConsent, updateBearerToken } = useUser();
+  const { selectedUser, updateBearerToken } = useUser();
 
   // Query params from chatbot redirect
   const consentId = searchParams.get("consent_id");
@@ -136,25 +135,52 @@ function BankLoginContent() {
         profile: null,
       });
 
-      // Process remaining SSE events
+      // Parse SSE stream to extract the final AI response
+      let finalResponse = null;
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-      }
-      reader.releaseLock();
 
-      // Bridge consent to UserContext
-      if (approved && consentData?.consent_id) {
-        setConsent(
-          consentData.consent_id,
-          "authorized",
-          consentData.source_institution || institutionName
-        );
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const parts = buffer.split("\n\n");
+          buffer = parts.pop();
+
+          for (const part of parts) {
+            for (const line of part.split("\n")) {
+              if (line.startsWith("data: ")) {
+                try {
+                  const event = JSON.parse(line.slice(6));
+                  if (event.type === "response") {
+                    finalResponse = event.payload?.text || null;
+                  }
+                } catch {
+                  // skip malformed
+                }
+              }
+            }
+          }
+        }
+      } finally {
+        reader.releaseLock();
       }
+
+      // Send completion to the original tab's chatbot via BroadcastChannel
+      const channel = new BroadcastChannel("leafy-bank-consent");
+      if (approved && consentData?.consent_id) {
+        channel.postMessage({
+          type: "consent_complete",
+          response: finalResponse,
+          consentId: consentData.consent_id,
+          institution: consentData.source_institution || institutionName,
+          bearerToken: token,
+        });
+      }
+      channel.close();
 
       setStep("done");
       setStatusText(approved ? "Consent approved!" : "Consent declined.");
@@ -164,9 +190,9 @@ function BankLoginContent() {
     }
   }
 
-  // Redirect back to home
-  function handleReturn() {
-    router.push("/");
+  // Close this tab (opened from chatbot)
+  function handleCloseTab() {
+    window.close();
   }
 
   // Guard: no params or no user
@@ -291,10 +317,10 @@ function BankLoginContent() {
           <div className={styles.section}>
             <div className={styles.doneBox}>
               <Subtitle>{statusText}</Subtitle>
-              <Body>You can now return to the dashboard to view your connected data.</Body>
+              <Body>Your data has been sent back to the chatbot. You can close this tab.</Body>
             </div>
-            <Button variant="primary" onClick={handleReturn} className={styles.actionBtn}>
-              Return to Dashboard
+            <Button variant="primary" onClick={handleCloseTab} className={styles.actionBtn}>
+              Close This Tab
             </Button>
           </div>
         )}
