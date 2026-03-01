@@ -1,0 +1,119 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 80vh;
+  padding: 40px 20px;
+}
+
+.card {
+  max-width: 560px;
+  width: 100%;
+  padding: 32px;
+}
+
+.header {
+  margin-bottom: 24px;
+}
+
+.subtitle {
+  color: #6b7280;
+  font-size: 13px;
+  margin-top: 4px;
+  font-family: monospace;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.tokenBox {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  width: 100%;
+  text-align: center;
+}
+
+.tokenValue {
+  display: block;
+  margin: 8px 0;
+  font-size: 14px;
+  color: #007856;
+  background: #f0fdf4;
+  padding: 8px 12px;
+  border-radius: 4px;
+  word-break: break-all;
+}
+
+.tokenHint {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 12px 16px;
+  width: 100%;
+  color: #991b1b;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #d1d5db;
+  border-top-color: #007856;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.consentBox {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 20px;
+  width: 100%;
+}
+
+.consentMessage {
+  margin: 8px 0 16px;
+  color: #78350f;
+  line-height: 1.5;
+}
+
+.consentDetail {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #92400e;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.actionBtn {
+  width: 100%;
+}
+
+.doneBox {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 20px;
+  width: 100%;
+  text-align: center;
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styles from "./page.module.css";
 import { H2, Body, Subtitle } from "@leafygreen-ui/typography";
 import Card from "@leafygreen-ui/card";
@@ -8,35 +8,11 @@ import Image from "next/image";
 import Icon from "@leafygreen-ui/icon";
 import OverlapCards from "../../components/OverlapCards/OverlapCards";
 import LeafyBankAssistant from "../../components/LeafyBankAssistant/LeafyBankAssistant";
-
-// Sample card data for OverlapCards
-const CARDS_DATA = [
-  { title: "Gold Card", number: "5142-XXXX-XXXX-8293", amount: 5500 },
-];
-
-const SAMPLE_TRANSACTIONS = [
-  { category: "Payment", establishment: "Visa", date: "2025-12-11", amount: 120.0 },
-  { category: "Subscription", establishment: "Spotify", date: "2025-12-05", amount: 9.99 },
-  { category: "Dining", establishment: "Cafe Bonjour", date: "2025-12-03", amount: 34.5 },
-];
+import { useCreditCardsPageData } from "@/lib/api/hooks";
 
 export default function CreditCardsPage() {
-  const [transactions, setTransactions] = useState(SAMPLE_TRANSACTIONS);
   const [modalOpen, setModalOpen] = useState(false);
-
-  useEffect(() => {
-    let mounted = true;
-    fetch("/api/transactions")
-      .then((res) => {
-        if (!res.ok) throw new Error("no api");
-        return res.json();
-      })
-      .then((data) => {
-        if (mounted && Array.isArray(data)) setTransactions(data);
-      })
-      .catch(() => { });
-    return () => (mounted = false);
-  }, []);
+  const { creditCards, cardTxns, accountsLoading, txLoading } = useCreditCardsPageData();
 
   return (
     <main className={styles.container}>
@@ -45,11 +21,20 @@ export default function CreditCardsPage() {
       <section className={styles.topSection}>
         <div className={styles.rowThree}>
           <Card className={styles.topCard}>
-            <OverlapCards items={CARDS_DATA} />
+            {accountsLoading ? (
+              <Body>Loading cards...</Body>
+            ) : (
+              <OverlapCards items={creditCards} />
+            )}
           </Card>
           <Card className={styles.topCard}>
             <div className={styles.iframeWrap}>
-              <iframe title="Atlas chart" width="100%" height="240" src="https://charts.mongodb.com/charts-jeffn-zsdtj/embed/charts?id=cfd11f4a-b8b8-446d-91fe-ba8c03bc3ce9&maxDataAge=3600&theme=light&autoRefresh=true"></iframe>
+              <iframe
+                title="Atlas chart"
+                width="100%"
+                height="240"
+                src="https://charts.mongodb.com/charts-jeffn-zsdtj/embed/charts?id=cfd11f4a-b8b8-446d-91fe-ba8c03bc3ce9&maxDataAge=3600&theme=light&autoRefresh=true"
+              ></iframe>
             </div>
           </Card>
 
@@ -73,19 +58,19 @@ export default function CreditCardsPage() {
                 aria-label="Upgrade to Platinum"
               >
                 <div className={styles.cardContent}>
-                <div className={styles.thumbWrap}>
-                  <Image src="/card.png" alt="card icon" width={56} height={56} />
-                </div>
+                  <div className={styles.thumbWrap}>
+                    <Image src="/card.png" alt="card icon" width={56} height={56} />
+                  </div>
 
-                <div className={styles.cardText}>
-                  <Subtitle>Upgrade to Platinum</Subtitle>
-                  <Body className={styles.cardBodyGray}>Enjoy premium benefits</Body>
-                </div>
+                  <div className={styles.cardText}>
+                    <Subtitle>Upgrade to Platinum</Subtitle>
+                    <Body className={styles.cardBodyGray}>Enjoy premium benefits</Body>
+                  </div>
 
-                <div className={styles.iconRight}>
-                  <Icon glyph="ChevronRight" size="small" />
+                  <div className={styles.iconRight}>
+                    <Icon glyph="ChevronRight" size="small" />
+                  </div>
                 </div>
-              </div>
               </button>
             </Card>
           </div>
@@ -107,16 +92,29 @@ export default function CreditCardsPage() {
               </tr>
             </thead>
             <tbody>
-              {transactions.map((t, i) => (
-                <tr key={i}>
-                  <td>{t.category}</td>
-                  <td>{t.establishment}</td>
-                  <td>{t.date}</td>
-                  <td style={{ textAlign: "right" }}>
-                    {t.amount.toLocaleString(undefined, { style: "currency", currency: "USD" })}
-                  </td>
+              {txLoading ? (
+                <tr>
+                  <td colSpan={4}>Loading transactions...</td>
                 </tr>
-              ))}
+              ) : cardTxns.length > 0 ? (
+                cardTxns.map((t, i) => (
+                  <tr key={i}>
+                    <td>{t.category}</td>
+                    <td>{t.establishment}</td>
+                    <td>{t.date}</td>
+                    <td style={{ textAlign: "right" }}>
+                      {t.amount.toLocaleString(undefined, {
+                        style: "currency",
+                        currency: "USD",
+                      })}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4}>No credit card transactions found</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

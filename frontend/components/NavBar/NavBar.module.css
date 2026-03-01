@@ -48,10 +48,33 @@
 .right {
   display: flex;
   align-items: center;
+  gap: 12px;
 }
 
-.topRightPlaceholder {
-  width: 40px;
-  height: 28px;
-  /* intentionally empty — placeholder for future content */
+.profileSelect {
+  padding: 4px 8px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  background: white;
+  font-size: 13px;
+  color: #3d4f58;
+  cursor: pointer;
+  outline: none;
+}
+
+.profileSelect:focus {
+  border-color: #00684a;
+}
+
+.consentBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: #e3fcef;
+  color: #00684a;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
 }
