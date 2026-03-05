@@ -1,24 +1,127 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
-import Modal from "@leafygreen-ui/modal";
-import { H2, Body } from "@leafygreen-ui/typography";
-import Button from "@leafygreen-ui/button";
-import styles from "./LeafyBankAssistant.module.css";
 import { useChatbot } from "@/lib/api/useChatbot";
+import Button from "@leafygreen-ui/button";
+import Modal from "@leafygreen-ui/modal";
+import { Body, H2 } from "@leafygreen-ui/typography";
+import { useEffect, useRef, useState } from "react";
+import styles from "./LeafyBankAssistant.module.css";
 
 const SUGGESTIONS = [
   "I want to port my vehicle loan to a better rate",
+  "I want to port my payroll deductible loan to a better rate",
   "I want to port my personal loan to a better rate",
   "Show me my existing loan details",
   "I want financial advice",
 ];
 
+/**
+ * Renders a single step detail item (tool call or progress sub-step).
+ * Used by both active step indicator and finalized "steps" messages.
+ */
+function StepDetailItem({ detail }) {
+  const [expanded, setExpanded] = useState(false);
+  const hasIO =
+    (detail.kind === "tool" &&
+      ((detail.args && Object.keys(detail.args).length > 0) ||
+        detail.summary)) ||
+    (detail.kind === "progress" && (detail.input || detail.output));
+
+  return (
+    <div className={styles.stepDetail}>
+      <div
+        className={styles.stepDetailHeader}
+        onClick={hasIO ? () => setExpanded((v) => !v) : undefined}
+        style={hasIO ? { cursor: "pointer" } : undefined}
+      >
+        <span
+          className={
+            detail.status === "done" ? styles.iconDone : styles.iconPending
+          }
+        >
+          {detail.status === "done" ? "✓" : "●"}
+        </span>
+        {detail.kind === "tool" ? (
+          <code>{detail.tool}()</code>
+        ) : (
+          <span>{detail.message}</span>
+        )}
+        {hasIO && (
+          <span className={styles.expandToggle}>{expanded ? "▾" : "▸"}</span>
+        )}
+      </div>
+
+      {expanded && detail.kind === "tool" && (
+        <div className={styles.toolIO}>
+          {detail.args && Object.keys(detail.args).length > 0 && (
+            <>
+              <div className={styles.toolLabelInput}>input</div>
+              <pre className={styles.toolInput}>
+                {JSON.stringify(detail.args, null, 2)}
+              </pre>
+            </>
+          )}
+          {detail.summary && (
+            <>
+              <div className={styles.toolLabelOutput}>output</div>
+              <pre className={styles.toolOutput}>{formatJSON(detail.summary)}</pre>
+            </>
+          )}
+        </div>
+      )}
+
+      {expanded && detail.kind === "progress" && (
+        <div className={styles.toolIO}>
+          {detail.input && (
+            <>
+              <div className={styles.toolLabelInput}>input</div>
+              <pre className={styles.toolInput}>{formatJSON(detail.input)}</pre>
+            </>
+          )}
+          {detail.output && (
+            <>
+              <div className={styles.toolLabelOutput}>output</div>
+              <pre className={styles.toolOutput}>
+                {formatJSON(detail.output)}
+              </pre>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Safely stringify any value for display. Handles objects, arrays, and strings. */
+function formatJSON(val) {
+  if (!val) return "";
+  // Already an object/array — stringify directly
+  if (typeof val === "object") {
+    return JSON.stringify(val, null, 2);
+  }
+  // String — try to pretty-print if valid JSON, otherwise return as-is
+  try {
+    return JSON.stringify(JSON.parse(val), null, 2);
+  } catch {
+    return val;
+  }
+}
+
 export default function LeafyBankAssistant({ isOpen, onClose }) {
   const {
-    messages, inputValue, setInputValue, sending, waitingForBankLogin,
-    stepIndicator, interrupt, showSuggestions, threadId,
-    handleSend, handleResume, handleKeyDown, renderMarkdown,
+    messages,
+    inputValue,
+    setInputValue,
+    sending,
+    waitingForBankLogin,
+    stepIndicator,
+    interrupt,
+    showSuggestions,
+    threadId,
+    handleSend,
+    handleResume,
+    handleKeyDown,
+    renderMarkdown,
   } = useChatbot();
 
   // DOM refs
@@ -50,27 +153,42 @@ export default function LeafyBankAssistant({ isOpen, onClose }) {
         </div>
 
         <div className={styles.chatMessages}>
-          {messages.map((msg, i) => (
-            <div
-              key={i}
-              className={`${styles.message} ${
-                msg.type === "user"
-                  ? styles.userMessage
-                  : msg.type === "error"
-                  ? styles.errorMessage
-                  : styles.assistantMessage
-              }`}
-            >
-              {msg.type === "assistant" ? (
-                <div
-                  className={styles.messageText}
-                  dangerouslySetInnerHTML={renderMarkdown(msg.text)}
-                />
-              ) : (
-                <Body className={styles.messageText}>{msg.text}</Body>
-              )}
-            </div>
-          ))}
+          {messages.map((msg, i) => {
+            // Finalized step details (persisted in conversation history)
+            if (msg.type === "steps") {
+              return (
+                <div key={i} className={styles.stepsMessage}>
+                  <div className={styles.stepDetails}>
+                    {msg.details.map((d, j) => (
+                      <StepDetailItem key={j} detail={d} />
+                    ))}
+                  </div>
+                </div>
+              );
+            }
+
+            return (
+              <div
+                key={i}
+                className={`${styles.message} ${
+                  msg.type === "user"
+                    ? styles.userMessage
+                    : msg.type === "error"
+                      ? styles.errorMessage
+                      : styles.assistantMessage
+                }`}
+              >
+                {msg.type === "assistant" ? (
+                  <div
+                    className={styles.messageText}
+                    dangerouslySetInnerHTML={renderMarkdown(msg.text)}
+                  />
+                ) : (
+                  <Body className={styles.messageText}>{msg.text}</Body>
+                )}
+              </div>
+            );
+          })}
 
           {/* Suggestion Chips */}
           {showSuggestions && (
@@ -87,7 +205,7 @@ export default function LeafyBankAssistant({ isOpen, onClose }) {
             </div>
           )}
 
-          {/* Step Indicator */}
+          {/* Active Step Indicator (while processing) */}
           {stepIndicator && (
             <div className={styles.stepIndicator}>
               <div className={styles.stepHeader}>
@@ -97,24 +215,7 @@ export default function LeafyBankAssistant({ isOpen, onClose }) {
               {stepIndicator.details?.length > 0 && (
                 <div className={styles.stepDetails}>
                   {stepIndicator.details.map((d, i) => (
-                    <div key={i} className={styles.stepDetail}>
-                      <span
-                        className={
-                          d.status === "done"
-                            ? styles.iconDone
-                            : styles.iconPending
-                        }
-                      >
-                        {d.status === "done" ? "✓" : "●"}
-                      </span>
-                      <code>{d.tool}()</code>
-                      {d.summary && (
-                        <span className={styles.toolSummary}>
-                          → {d.summary.substring(0, 80)}
-                          {d.summary.length > 80 ? "..." : ""}
-                        </span>
-                      )}
-                    </div>
+                    <StepDetailItem key={i} detail={d} />
                   ))}
                 </div>
               )}
@@ -129,7 +230,8 @@ export default function LeafyBankAssistant({ isOpen, onClose }) {
                 <span>Waiting for bank login in the other tab...</span>
               </div>
               <Body className={styles.waitingHint}>
-                Complete the login and consent approval in the new tab. This chat will update automatically.
+                Complete the login and consent approval in the new tab. This
+                chat will update automatically.
               </Body>
             </div>
           )}
@@ -166,16 +268,10 @@ export default function LeafyBankAssistant({ isOpen, onClose }) {
                 </div>
               )}
               <div className={styles.interruptActions}>
-                <Button
-                  variant="primary"
-                  onClick={() => handleResume(true)}
-                >
+                <Button variant="primary" onClick={() => handleResume(true)}>
                   Approve Consent
                 </Button>
-                <Button
-                  variant="default"
-                  onClick={() => handleResume(false)}
-                >
+                <Button variant="default" onClick={() => handleResume(false)}>
                   Decline
                 </Button>
               </div>
@@ -189,7 +285,13 @@ export default function LeafyBankAssistant({ isOpen, onClose }) {
           <input
             ref={inputRef}
             type="text"
-            placeholder={waitingForBankLogin ? "Waiting for bank login..." : sending ? "Waiting for response..." : "Type your message..."}
+            placeholder={
+              waitingForBankLogin
+                ? "Waiting for bank login..."
+                : sending
+                  ? "Waiting for response..."
+                  : "Type your message..."
+            }
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}

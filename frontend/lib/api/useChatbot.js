@@ -41,6 +41,10 @@ export function useChatbot() {
   // Ref tracking thread ID for use inside event handlers
   const threadIdRef = useRef(chatThreadId);
 
+  // Ref tracking accumulated step details across SSE events.
+  // Using a ref avoids closure staleness in processSSEStream (memoized with []).
+  const pendingDetailsRef = useRef([]);
+
   // --- BroadcastChannel: listen for consent completion from bank-login tab ---
   useEffect(() => {
     const channel = new BroadcastChannel("leafy-bank-consent");
@@ -76,6 +80,27 @@ export function useChatbot() {
     return () => channel.close();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // --- Helpers ---
+
+  /**
+   * Finalize the current step indicator: save accumulated details as a
+   * "steps" message in the conversation, then clear the indicator.
+   * Optionally appends additional messages (e.g. the response).
+   */
+  function finalizeSteps(extraMessages = []) {
+    const saved = [...pendingDetailsRef.current];
+    pendingDetailsRef.current = [];
+    const newMsgs = [];
+    if (saved.length > 0) {
+      newMsgs.push({ type: "steps", details: saved });
+    }
+    newMsgs.push(...extraMessages);
+    if (newMsgs.length > 0) {
+      setMessages((prev) => [...prev, ...newMsgs]);
+    }
+    setStepIndicator(null);
+  }
 
   // --- SSE Stream Processing ---
 
@@ -127,49 +152,93 @@ export function useChatbot() {
       case "status":
         setStepIndicator((prev) => ({
           text: payload.message,
-          details: prev?.details || [],
+          details: prev?.details || pendingDetailsRef.current,
         }));
         break;
 
-      case "tool_call":
-        setStepIndicator((prev) => ({
-          text: `Calling ${payload.tool}()...`,
-          details: [
-            ...(prev?.details || []),
-            { tool: payload.tool, args: payload.args, status: "pending" },
-          ],
-        }));
+      case "tool_call": {
+        const detail = {
+          kind: "tool",
+          tool: payload.tool,
+          agent: payload.agent,
+          args: payload.args,
+          status: "pending",
+        };
+        pendingDetailsRef.current = [...pendingDetailsRef.current, detail];
+        const agentPrefix1 = payload.agent_display ? `${payload.agent_display}: ` : "";
+        setStepIndicator({
+          text: `${agentPrefix1}Calling ${payload.tool}()...`,
+          details: [...pendingDetailsRef.current],
+        });
         break;
+      }
 
-      case "tool_result":
+      case "tool_result": {
+        pendingDetailsRef.current = pendingDetailsRef.current.map((d) =>
+          d.kind === "tool" && d.tool === payload.tool && d.status === "pending"
+            ? { ...d, status: "done", summary: payload.summary }
+            : d
+        );
+        const agentPrefix2 = payload.agent_display ? `${payload.agent_display}: ` : "";
         setStepIndicator((prev) => ({
           ...prev,
-          text: `${payload.tool}() completed`,
-          details:
-            prev?.details?.map((d) =>
-              d.tool === payload.tool && d.status === "pending"
-                ? { ...d, status: "done", summary: payload.summary }
-                : d
-            ) || [],
+          text: `${agentPrefix2}${payload.tool}() completed`,
+          details: [...pendingDetailsRef.current],
         }));
         break;
+      }
+
+      case "progress": {
+        // Progress events from get_stream_writer() inside tools.
+        // Two sub-cases: message = start/new sub-step, output only = complete existing step.
+        if (payload.message) {
+          const detail = {
+            kind: "progress",
+            step: payload.step,
+            message: payload.message,
+            input: payload.input,
+            status: "pending",
+          };
+          pendingDetailsRef.current = [...pendingDetailsRef.current, detail];
+          setStepIndicator((prev) => ({
+            ...prev,
+            text: payload.message,
+            details: [...pendingDetailsRef.current],
+          }));
+        } else if (payload.output && payload.step) {
+          pendingDetailsRef.current = pendingDetailsRef.current.map((d) =>
+            d.kind === "progress" && d.step === payload.step && d.status === "pending"
+              ? { ...d, status: "done", output: payload.output }
+              : d
+          );
+          setStepIndicator((prev) => ({
+            ...prev,
+            details: [...pendingDetailsRef.current],
+          }));
+        }
+        break;
+      }
 
       case "agent_complete":
         setStepIndicator((prev) =>
-          prev ? { ...prev, text: `${payload.agent} finished` } : null
+          prev ? { ...prev, text: `${payload.agent_display || payload.agent} finished` } : null
         );
         break;
 
       case "response":
-        setStepIndicator(null);
-        setMessages((prev) => [
-          ...prev,
-          { type: "assistant", text: payload.text },
-        ]);
+        // Finalize steps + add the response message
+        finalizeSteps([{ type: "assistant", text: payload.text }]);
         break;
 
-      case "interrupt":
+      case "interrupt": {
+        // Finalize steps before handling the interrupt
+        const saved = [...pendingDetailsRef.current];
+        pendingDetailsRef.current = [];
+        if (saved.length > 0) {
+          setMessages((prev) => [...prev, { type: "steps", details: saved }]);
+        }
         setStepIndicator(null);
+
         if (payload.type === "BANK_LOGIN" && threadIdRef.current) {
           // Open bank login in a NEW TAB — keeps chatbot modal + state alive
           const params = new URLSearchParams({
@@ -183,8 +252,10 @@ export function useChatbot() {
           setInterrupt(payload);
         }
         break;
+      }
 
       case "error":
+        pendingDetailsRef.current = [];
         setStepIndicator(null);
         setMessages((prev) => [
           ...prev,
@@ -193,7 +264,8 @@ export function useChatbot() {
         break;
 
       case "done":
-        setStepIndicator(null);
+        // Finalize any remaining steps (e.g. if no response event was sent)
+        finalizeSteps();
         break;
     }
   }
@@ -207,6 +279,7 @@ export function useChatbot() {
 
     setMessages((prev) => [...(prev || [{ type: "assistant", text: WELCOME_MESSAGE }]), { type: "user", text }]);
     setInputValue("");
+    pendingDetailsRef.current = [];
     setSending(true);
     setStepIndicator({ text: "Thinking...", details: [] });
 
@@ -218,6 +291,7 @@ export function useChatbot() {
       const res = await chatStream("chat/stream", body);
       await processSSEStream(res);
     } catch (e) {
+      pendingDetailsRef.current = [];
       setStepIndicator(null);
       setMessages((prev) => [
         ...prev,
@@ -247,6 +321,7 @@ export function useChatbot() {
     }
 
     setInterrupt(null);
+    pendingDetailsRef.current = [];
     setSending(true);
     setStepIndicator({ text: stepLabel, details: [] });
 
@@ -272,6 +347,7 @@ export function useChatbot() {
         );
       }
     } catch (e) {
+      pendingDetailsRef.current = [];
       setStepIndicator(null);
       setMessages((prev) => [
         ...prev,
