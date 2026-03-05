@@ -65,12 +65,11 @@ const NavBarContent = () => {
 
                 <select
                     className={styles.profileSelect}
-                    value={profile || ""}
-                    onChange={(e) => setProfile(e.target.value || null)}
+                    value={profile}
+                    onChange={(e) => setProfile(e.target.value)}
                 >
-                    <option value="">No Profile</option>
-                    <option value="overspender">Overspender</option>
                     <option value="balanced">Balanced</option>
+                    <option value="overspender">Overspender</option>
                     <option value="saver">Saver</option>
                 </select>
 

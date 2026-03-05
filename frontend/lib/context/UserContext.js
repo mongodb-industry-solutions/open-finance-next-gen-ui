@@ -9,7 +9,7 @@ export function UserProvider({ children }) {
   const [activeConsentId, setActiveConsentId] = useState(null);
   const [consentStatus, setConsentStatus] = useState(null);
   const [sourceInstitution, setSourceInstitution] = useState(null);
-  const [profile, setProfile] = useState(null);
+  const [profile, setProfile] = useState("balanced");
   const [consentRefreshKey, setConsentRefreshKey] = useState(0);
 
   // Chat state — persists across navigation (e.g. bank-login redirect and back)
@@ -33,7 +33,7 @@ export function UserProvider({ children }) {
     setActiveConsentId(null);
     setConsentStatus(null);
     setSourceInstitution(null);
-    setProfile(null);
+    setProfile("balanced");
     setChatMessages(null);
     setChatThreadId(null);
 
@@ -48,7 +48,7 @@ export function UserProvider({ children }) {
     setActiveConsentId(null);
     setConsentStatus(null);
     setSourceInstitution(null);
-    setProfile(null);
+    setProfile("balanced");
   }, []);
 
   // Update bearer token (e.g. from bank-login get-authorization)
