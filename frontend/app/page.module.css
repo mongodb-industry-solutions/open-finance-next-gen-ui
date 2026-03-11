@@ -20,6 +20,7 @@
   padding: 16px 24px;
   display: flex;
   flex-direction: column;
+   width: 100%;
 }
 
 /* Row with three cards where middle is larger */
@@ -55,19 +56,42 @@
   flex: 1 1 50%;
 }
 
+.cardEqual .leafyCard {
+  animation: pulseGlow 2s infinite;
+
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(166, 255, 236, 0.8);
+  }
+
+  70% {
+    box-shadow: 0 0 0 6px rgba(166, 255, 236, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(166, 255, 236, 0);
+  }
+}
+
 /* Products area: header + three equal cards */
 .productsHeader {
   margin-bottom: 12px;
 }
 
 .rowThreeEqual {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
-  flex: 1 1 auto;
+  width: 100%;
 }
 
 .cardProduct {
-  flex: 1 1 0;
+ flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+
 }
 
 .leafyCard {
@@ -141,27 +165,30 @@
 .accountList {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   width: 100%;
+  flex: 1;
 }
 
 .accountRow {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   width: 100%;
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e5e6;
 }
 
 .accountInfo {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  text-align: left;
+  flex: 1;
+  min-width: 0;
 }
 
 .accountAmount {
-  flex: 0 0 auto;
+  margin-left: auto;
   text-align: right;
+  white-space: nowrap;
 }
 
 .cardContent {
@@ -186,7 +213,8 @@
 }
 
 .cardBodyGray {
-  color: #6b7280; /* gray-500 */
+  color: #6b7280;
+  /* gray-500 */
 }
 
 .iconRight {
@@ -199,12 +227,17 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .rowThree, .rowThreeEqual, .rowTwo {
+
+  .rowThree,
+  .rowThreeEqual,
+  .rowTwo {
     flex-direction: column;
     height: auto;
   }
 
-  .topSection, .midSection, .bottomSection {
+  .topSection,
+  .midSection,
+  .bottomSection {
     height: auto;
   }
 
@@ -284,4 +317,18 @@
 .entitiesButton:focus {
   outline: 2px solid rgba(0, 120, 88, 0.12);
   outline-offset: 4px;
+}
+
+.pieChartWrap {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.pieChartWrap iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 8px;
 }

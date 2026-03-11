@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Body } from "@leafygreen-ui/typography";
 import styles from "./NavBar.module.css";
 import { useUser } from "@/lib/context/UserContext";
+import Modal from "@leafygreen-ui/modal";
 
 const NavBar = () => {
     const [mounted, setMounted] = useState(false);
@@ -25,7 +26,7 @@ const NavBar = () => {
                 </div>
                 <nav className={styles.center} aria-label="Main navigation">
                     <Link href="/" className={styles.navLink}>
-                        <Body weight="medium">My Bank</Body>
+                        {/*  <Body weight="medium">My Bank</Body>*/}
                     </Link>
                 </nav>
                 <div className={styles.right}>
@@ -41,41 +42,86 @@ const NavBar = () => {
 const NavBarContent = () => {
     const { selectedUser, profile, setProfile, consentStatus, sourceInstitution } = useUser();
     const userName = selectedUser?.name || "User";
+    const userRole = selectedUser?.role || "";
+    const userID = selectedUser?.id || "12345";
+    const [showUserModal, setShowUserModal] = useState(false);
 
     return (
-        <header className={styles.navBar}>
-            <div className={styles.left}>
-                <Link href="/" className={styles.logoLink} aria-label="Leafy Bank home">
-                    <Image src="/leafy_bank_logo.png" alt="Leafy Bank" width={200} height={36} />
-                </Link>
-            </div>
+        <>
+            <Modal open={showUserModal} setOpen={setShowUserModal} aria-label="User info">
+                <div className={styles.userModalContent}>
+                    {selectedUser?.id && (
+                        <Image
+                            src={`/users/${userID}.png`}
+                            alt={userName}
+                            width={150}
+                            height={80}
+                            className={styles.userImageModal}
+                        />
+                    )}
+                    <Body weight="medium">{userName}</Body>
+                    {userRole && <Body className={styles.userRole}>{userRole}</Body>}
+                    {/* additional tags */}
+                    <div className={styles.userTags}>
+                        <div className={styles.tag}>Employer: {selectedUser?.employer || 'N/A'}</div>
+                        <div className={styles.tag}>Type: {selectedUser?.employmentType || 'N/A'}</div>
+                        <div className={styles.tag}>Job Title: {selectedUser?.jobTitle || 'N/A'}</div>
+                        <div className={styles.tag}>Income: {selectedUser?.incomeAmount || 'N/A'} {selectedUser?.currency || ''} / {selectedUser?.incomeFrequency || ''}</div>
+                    </div>
+                </div>
+            </Modal>
+            <header className={styles.navBar}>
+                <div className={styles.left}>
+                    <Link href="/" className={styles.logoLink} aria-label="Leafy Bank home">
+                        <Image src="/leafy_bank_logo.png" alt="Leafy Bank" width={200} height={36} />
+                    </Link>
+                </div>
 
-            <nav className={styles.center} aria-label="Main navigation">
-                <Link href="/" className={styles.navLink}>
-                    <Body weight="medium">My Bank</Body>
-                </Link>
-            </nav>
+                <nav className={styles.center} aria-label="Main navigation">
+                    <Link href="/" className={styles.navLink}>
+                        {/* <Body weight="medium">My Bank</Body>*/}
+                    </Link>
+                </nav>
 
-            <div className={styles.right}>
-                {consentStatus === "authorized" && sourceInstitution && (
-                    <span className={styles.consentBadge}>
-                        Connected to {sourceInstitution}
-                    </span>
-                )}
+                <div className={styles.right}>
+                    {consentStatus === "authorized" && sourceInstitution && (
+                        <span className={styles.consentBadge}>
+                            Connected to {sourceInstitution}
+                        </span>
+                    )}
 
-                <select
-                    className={styles.profileSelect}
-                    value={profile}
-                    onChange={(e) => setProfile(e.target.value)}
-                >
-                    <option value="balanced">Balanced</option>
-                    <option value="overspender">Overspender</option>
-                    <option value="saver">Saver</option>
-                </select>
+                    <div className={styles.profileContainer}>
+                        <label className={styles.profileLabel}>Spending Profile</label>
+                        <select
+                            className={styles.profileSelect}
+                            value={profile}
+                            onChange={(e) => setProfile(e.target.value)}
+                        >
+                            <option value="balanced">Balanced</option>
+                            <option value="overspender">Overspender</option>
+                            <option value="saver">Saver</option>
+                        </select>
+                    </div>
 
-                <Body>{userName}</Body>
-            </div>
-        </header>
+                    <div className={styles.userInfoContainer} onClick={() => setShowUserModal(true)}>
+                        {selectedUser?.id && (
+                            <Image
+                                src={`/users/${userID}.png`}
+                                alt={userName}
+                                width={30}
+                                height={40}
+                                className={styles.userImage}
+                            />
+                        )}
+
+                        <div className={styles.userDetails}>
+                            <Body>{userName}</Body>
+                            {userRole && <div className={styles.userRole}>{userRole}</div>}
+                        </div>
+                    </div>
+                </div>
+            </header>
+        </>
     );
 };
 
