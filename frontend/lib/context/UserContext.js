@@ -1,14 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
 
 const UserContext = createContext(null);
 
 export function UserProvider({ children }) {
   const [selectedUser, setSelectedUser] = useState(null);
-  const [activeConsentId, setActiveConsentId] = useState(null);
-  const [consentStatus, setConsentStatus] = useState(null);
-  const [sourceInstitution, setSourceInstitution] = useState(null);
+  // Multi-bank: Map<consentId, { status, institution }>
+  const [consents, setConsents] = useState(new Map());
   const [profile, setProfile] = useState("balanced");
   const [consentRefreshKey, setConsentRefreshKey] = useState(0);
 
@@ -30,9 +29,7 @@ export function UserProvider({ children }) {
 
   const selectUser = useCallback((user) => {
     // Clear previous session
-    setActiveConsentId(null);
-    setConsentStatus(null);
-    setSourceInstitution(null);
+    setConsents(new Map());
     setProfile("balanced");
     setChatMessages(null);
     setChatThreadId(null);
@@ -45,9 +42,7 @@ export function UserProvider({ children }) {
   const clearUser = useCallback(() => {
     localStorage.removeItem("selectedUser");
     setSelectedUser(null);
-    setActiveConsentId(null);
-    setConsentStatus(null);
-    setSourceInstitution(null);
+    setConsents(new Map());
     setProfile("balanced");
   }, []);
 
@@ -61,19 +56,61 @@ export function UserProvider({ children }) {
     });
   }, []);
 
-  // Called when chatbot completes consent flow
-  const setConsent = useCallback((consentId, status, institution) => {
-    setActiveConsentId(consentId);
-    setConsentStatus(status);
-    setSourceInstitution(institution);
+  // Multi-bank: add a consent (appends, doesn't overwrite)
+  const addConsent = useCallback((consentId, status, institution) => {
+    setConsents((prev) => {
+      const next = new Map(prev);
+      next.set(consentId, { status, institution });
+      return next;
+    });
     setConsentRefreshKey((k) => k + 1);
   }, []);
+
+  // Multi-bank: remove a specific consent (revocation)
+  const removeConsent = useCallback((consentId) => {
+    setConsents((prev) => {
+      const next = new Map(prev);
+      next.delete(consentId);
+      return next;
+    });
+    setConsentRefreshKey((k) => k + 1);
+  }, []);
+
+  // Derived: all authorized consents as array
+  const authorizedConsents = useMemo(
+    () =>
+      [...consents.entries()]
+        .filter(([, c]) => c.status === "authorized")
+        .map(([id, c]) => ({ consentId: id, ...c })),
+    [consents]
+  );
+
+  const authorizedConsentIds = useMemo(
+    () => authorizedConsents.map((c) => c.consentId),
+    [authorizedConsents]
+  );
+
+  const hasActiveConsent = authorizedConsents.length > 0;
+
+  // Backward compat bridge (deprecated — use authorizedConsents instead)
+  const activeConsentId = authorizedConsents[0]?.consentId ?? null;
+  const consentStatus = authorizedConsents[0]?.status ?? null;
+  const sourceInstitution = authorizedConsents[0]?.institution ?? null;
+  const setConsent = addConsent;
 
   const value = {
     selectedUser,
     selectUser,
     clearUser,
     updateBearerToken,
+    // Multi-bank API
+    consents,
+    addConsent,
+    removeConsent,
+    authorizedConsents,
+    authorizedConsentIds,
+    hasActiveConsent,
+    // Backward compat (deprecated)
     activeConsentId,
     consentStatus,
     sourceInstitution,

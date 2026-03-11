@@ -12,7 +12,7 @@ import { useLoansPageData } from "@/lib/api/hooks";
 
 export default function LoansPage() {
   const [modalOpen, setModalOpen] = useState(false);
-  const { loanCards, loanTableRows, loading, activeConsentId } = useLoansPageData();
+  const { loanCards, loanTableRows, loading, hasActiveConsent } = useLoansPageData();
 
   return (
     <main className={styles.container}>
@@ -28,7 +28,7 @@ export default function LoansPage() {
             ) : (
               <div style={{ padding: "20px", textAlign: "center" }}>
                 <Body className={styles.cardBodyGray}>
-                  {activeConsentId
+                  {hasActiveConsent
                     ? "No external loan products found"
                     : "Connect your external bank via the chatbot to see your loans"}
                 </Body>
@@ -111,7 +111,7 @@ export default function LoansPage() {
             </table>
           ) : (
             <Body className={styles.cardBodyGray} style={{ padding: "20px" }}>
-              {activeConsentId
+              {hasActiveConsent
                 ? "No loan data available"
                 : "Use the chatbot to connect your external bank and view loan details"}
             </Body>
