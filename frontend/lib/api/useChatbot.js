@@ -14,7 +14,7 @@ export function useChatbot() {
   const {
     selectedUser,
     profile,
-    setConsent,
+    addConsent,
     updateBearerToken,
     chatMessages,
     setChatMessages,
@@ -68,7 +68,7 @@ export function useChatbot() {
 
         // Bridge consent to dashboard
         if (consentId) {
-          setConsent(consentId, "authorized", institution);
+          addConsent(consentId, "authorized", institution);
         }
 
         // Clear waiting state
@@ -340,7 +340,7 @@ export function useChatbot() {
         approved &&
         interruptData.consent_id
       ) {
-        setConsent(
+        addConsent(
           interruptData.consent_id,
           "authorized",
           interruptData.source_institution
