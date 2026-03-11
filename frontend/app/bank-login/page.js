@@ -74,7 +74,7 @@ function BankLoginContent() {
                   </Body>
                 </div>
                 <Button variant="primary" onClick={handleBankLogin} className={styles.actionBtn}>
-                  Log In to {institutionName}
+                  Log in to {institutionName}
                 </Button>
               </>
             ) : null}
@@ -96,6 +96,8 @@ function BankLoginContent() {
             <Body>{statusText}</Body>
           </div>
         )}
+
+        
 
         {/* Step: Consent Approval */}
         {step === "consent" && consentData && (

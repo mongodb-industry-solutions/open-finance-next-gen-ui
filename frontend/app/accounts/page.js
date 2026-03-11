@@ -9,9 +9,30 @@ import Icon from "@leafygreen-ui/icon";
 import OverlapCards from "../../components/OverlapCards/OverlapCards";
 import LeafyBankAssistant from "../../components/LeafyBankAssistant/LeafyBankAssistant";
 import { useAccountsPageData } from "@/lib/api/hooks";
+import { useUser } from "@/lib/context/UserContext";
+
+const categoryColors = {
+  "Groceries": "#10B981",
+  "Restaurants": "#F59E0B",
+  "Travel": "#3B82F6",
+  "Entertainment": "#8B5CF6",
+  "Movie Theatres": "#8B5CF6",
+  "Streaming Services": "#8B5CF6",
+  "Utilities": "#EF4444",
+  "Clothing Stores": "#EC4899",
+  "Department Stores": "#EC4899",
+  "Healthcare": "#06B6D4",
+  "Pharmacy": "#06B6D4",
+  "Other": "#dfdfdf",
+};
+
+const getCategoryColor = (category) => {
+  return categoryColors[category] || categoryColors["Other"];
+};
 
 export default function AccountsPage() {
   const [modalOpen, setModalOpen] = useState(false);
+  const { selectedUser } = useUser();
   const { allAccounts, recentTxns, accountsLoading, txLoading } = useAccountsPageData();
 
   return (
@@ -27,20 +48,53 @@ export default function AccountsPage() {
             )}
           </Card>
           <Card className={styles.topCard}>
-            <div className={styles.iframeWrap}>
-              <iframe
-                title="Atlas chart"
-                width="100%"
-                height="240"
-                src="https://charts.mongodb.com/charts-jeffn-zsdtj/embed/charts?id=cfd11f4a-b8b8-446d-91fe-ba8c03bc3ce9&maxDataAge=3600&theme=light&autoRefresh=true"
-              ></iframe>
-            </div>
+            {selectedUser?.name === 'fridaklo' && (
+              <div className={styles.iframeWrap}>
+                <iframe 
+                  width="640" 
+                  height="480" 
+                  src="https://charts.mongodb.com/charts-jeffn-zsdtj/embed/charts?id=1066e97f-6628-49be-a720-462c0d87d32c&maxDataAge=3600&theme=light&autoRefresh=true"
+                ></iframe>
+              </div>
+            )}
+            {selectedUser?.name === 'hellyrig' && (
+              <div className={styles.iframeWrap}>
+                <iframe 
+                  width="640" 
+                  height="480" 
+                  src="https://charts.mongodb.com/charts-jeffn-zsdtj/embed/charts?id=45137520-16e5-430a-8a12-b07deca1b69e&maxDataAge=3600&theme=light&autoRefresh=true"
+                ></iframe>
+              </div>
+            )}
+            {(!selectedUser?.name || (selectedUser?.name !== 'fridaklo' && selectedUser?.name !== 'hellyrig')) && (
+              <div className={styles.iframeWrap}></div>
+            )}
           </Card>
 
           <div className={styles.stackColumn}>
             <Card className={styles.stackTopCard}>
               <div className={styles.stackTopInner}>
-                <Subtitle>Other analytics</Subtitle>
+                {selectedUser?.name === 'fridaklo' && (
+                  <div className={styles.iframeWrap}>
+                    <iframe 
+                      width="640" 
+                      height="480" 
+                      src="https://charts.mongodb.com/charts-jeffn-zsdtj/embed/charts?id=b2f07682-5ce1-4955-9e7f-703ba881404b&maxDataAge=3600&theme=light&autoRefresh=true"
+                    ></iframe>
+                  </div>
+                )}
+                {selectedUser?.name === 'hellyrig' && (
+                  <div className={styles.iframeWrap}>
+                    <iframe 
+                      width="640" 
+                      height="480" 
+                      src="https://charts.mongodb.com/charts-jeffn-zsdtj/embed/charts?id=b421bdc8-3f1f-42ec-ac02-91196c36a1dd&maxDataAge=3600&theme=light&autoRefresh=true"
+                    ></iframe>
+                  </div>
+                )}
+                {(!selectedUser?.name || (selectedUser?.name !== 'fridaklo' && selectedUser?.name !== 'hellyrig')) && (
+                  <Subtitle>Other analytics</Subtitle>
+                )}
               </div>
             </Card>
 
@@ -59,15 +113,15 @@ export default function AccountsPage() {
                 <div className={styles.cardContent}>
                   <div className={styles.thumbWrap}>
                     <Image
-                      src="/icon1.png"
+                      src="/tips.gif"
                       alt="thumbnail"
-                      width={56}
+                      width={90}
                       height={56}
                     />
                   </div>
 
                   <div className={styles.cardText}>
-                    <Subtitle>Join our Premium Financial Program</Subtitle>
+                    <Subtitle>Join our Financial Program</Subtitle>
                     <Body className={styles.cardBodyGray}>
                       Get more out of Leafy Bank
                     </Body>
@@ -89,6 +143,7 @@ export default function AccountsPage() {
           <table className={styles.table}>
             <thead>
               <tr>
+                <th className={styles.th}></th>
                 <th className={styles.th}>Category</th>
                 <th className={styles.th}>Establishment</th>
                 <th className={styles.th}>Date</th>
@@ -100,11 +155,17 @@ export default function AccountsPage() {
             <tbody>
               {txLoading ? (
                 <tr>
-                  <td colSpan={4}>Loading transactions...</td>
+                  <td colSpan={5}>Loading transactions...</td>
                 </tr>
               ) : recentTxns.length > 0 ? (
                 recentTxns.map((t, idx) => (
                   <tr key={idx}>
+                    <td className={styles.categoryCircleCell}>
+                      <div 
+                        className={styles.categoryCircle}
+                        style={{ backgroundColor: getCategoryColor(t.category) }}
+                      ></div>
+                    </td>
                     <td>{t.category}</td>
                     <td>{t.establishment}</td>
                     <td>{t.date}</td>
@@ -118,7 +179,7 @@ export default function AccountsPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={4}>No transactions found</td>
+                  <td colSpan={5}>No transactions found</td>
                 </tr>
               )}
             </tbody>
