@@ -40,7 +40,7 @@ const NavBar = () => {
 };
 
 const NavBarContent = () => {
-    const { selectedUser, profile, setProfile, consentStatus, sourceInstitution } = useUser();
+    const { selectedUser, profile, setProfile, authorizedConsents } = useUser();
     const userName = selectedUser?.name || "User";
     const userRole = selectedUser?.role || "";
     const userID = selectedUser?.id || "12345";
@@ -84,11 +84,11 @@ const NavBarContent = () => {
                 </nav>
 
                 <div className={styles.right}>
-                    {consentStatus === "authorized" && sourceInstitution && (
-                        <span className={styles.consentBadge}>
-                            Connected to {sourceInstitution}
+                    {authorizedConsents.map(({ consentId, institution }) => (
+                        <span key={consentId} className={styles.consentBadge}>
+                            Connected to {institution}
                         </span>
-                    )}
+                    ))}
 
                     <div className={styles.profileContainer}>
                         <label className={styles.profileLabel}>Spending Profile</label>
