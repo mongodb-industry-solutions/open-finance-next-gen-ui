@@ -16,9 +16,16 @@ export function UserProvider({ children }) {
   const [chatMessages, setChatMessages] = useState(null); // null = fresh session, [] = cleared
   const [chatThreadId, setChatThreadId] = useState(null);
 
-  // Clear stale user on fresh page load so Login always shows on refresh
+  // Hydrate from localStorage on mount (needed for bank-login tab)
   useEffect(() => {
-    localStorage.removeItem("selectedUser");
+    const stored = localStorage.getItem("selectedUser");
+    if (stored) {
+      try {
+        setSelectedUser(JSON.parse(stored));
+      } catch {
+        localStorage.removeItem("selectedUser");
+      }
+    }
   }, []);
 
   const selectUser = useCallback((user) => {

@@ -310,10 +310,19 @@ const HomeContent = () => {
 };
 
 export default function Home() {
-  const { selectedUser } = useUser();
+  const { selectedUser, clearUser } = useUser();
   const [loginDone, setLoginDone] = useState(false);
 
-  // Sync loginDone with selectedUser after client-side hydration (avoids SSR mismatch)
+  // Fresh page load (refresh/new tab) → clear user so Login shows.
+  // Client-side navigation (logo click) → flag already set, skip clear.
+  useEffect(() => {
+    if (!window.__LEAFY_SESSION__) {
+      window.__LEAFY_SESSION__ = true;
+      clearUser();
+    }
+  }, [clearUser]);
+
+  // Sync loginDone after hydration or user selection
   useEffect(() => {
     if (selectedUser) setLoginDone(true);
   }, [selectedUser]);
