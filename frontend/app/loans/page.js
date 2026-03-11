@@ -36,14 +36,7 @@ export default function LoansPage() {
             )}
           </Card>
           <Card className={styles.topCard}>
-            <div className={styles.iframeWrap}>
-              <iframe
-                title="Atlas chart"
-                width="100%"
-                height="240"
-                src="https://charts.mongodb.com/charts-jeffn-zsdtj/embed/charts?id=cfd11f4a-b8b8-446d-91fe-ba8c03bc3ce9&maxDataAge=3600&theme=light&autoRefresh=true"
-              ></iframe>
-            </div>
+            
           </Card>
 
           <div className={styles.stackColumn}>
@@ -67,7 +60,7 @@ export default function LoansPage() {
               >
                 <div className={styles.cardContent}>
                   <div className={styles.thumbWrap}>
-                    <Image src="/loan.png" alt="loan icon" width={56} height={56} />
+                    <Image src="/loan.gif" alt="loan icon" width={80} height={56} />
                   </div>
 
                   <div className={styles.cardText}>
