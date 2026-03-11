@@ -310,10 +310,13 @@ const HomeContent = () => {
 };
 
 export default function Home() {
-  const { selectedUser, clearUser } = useUser();
+  const { selectedUser } = useUser();
   const [loginDone, setLoginDone] = useState(false);
 
-  useEffect(() => { clearUser(); }, []);
+  // Sync loginDone with selectedUser after client-side hydration (avoids SSR mismatch)
+  useEffect(() => {
+    if (selectedUser) setLoginDone(true);
+  }, [selectedUser]);
 
   return (
     <>

@@ -16,16 +16,9 @@ export function UserProvider({ children }) {
   const [chatMessages, setChatMessages] = useState(null); // null = fresh session, [] = cleared
   const [chatThreadId, setChatThreadId] = useState(null);
 
-  // Hydrate from localStorage on mount
+  // Clear stale user on fresh page load so Login always shows on refresh
   useEffect(() => {
-    const stored = localStorage.getItem("selectedUser");
-    if (stored) {
-      try {
-        setSelectedUser(JSON.parse(stored));
-      } catch {
-        localStorage.removeItem("selectedUser");
-      }
-    }
+    localStorage.removeItem("selectedUser");
   }, []);
 
   const selectUser = useCallback((user) => {
