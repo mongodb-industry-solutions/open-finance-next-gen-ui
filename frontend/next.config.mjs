@@ -1,16 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   skipTrailingSlashRedirect: true,
-  async rewrites() {
-    return [
-      {
-        source: '/api/backend/:path*',
-        destination: `${process.env.CORE_BACKEND_URL || 'http://localhost:8003'}/api/v1/:path*`,
-      },
-      // Chatbot proxy moved to app/api/chatbot/[...path]/route.js
-      // Next.js rewrites buffer SSE responses; Route Handlers stream natively.
-    ];
-  },
+  // All API proxies use Route Handlers (app/api/) so backend URLs are
+  // resolved at runtime, not baked in at build time.
+  //   - /api/backend/* → app/api/backend/[...path]/route.js
+  //   - /api/chatbot/* → app/api/chatbot/[...path]/route.js
 };
 
 export default nextConfig;
