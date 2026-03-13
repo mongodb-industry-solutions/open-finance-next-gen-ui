@@ -236,3 +236,5 @@ frontend/next-env.d.ts
 # Misc
 *.pem
 _state.md
+setup-hooks.sh
+.gitignore
