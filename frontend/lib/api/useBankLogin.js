@@ -13,9 +13,25 @@ export function useBankLogin({ consentId, institutionName, threadId }) {
   const [tokenError, setTokenError] = useState(null);
   const [consentData, setConsentData] = useState(null);
   const [statusText, setStatusText] = useState("");
+  const [encryptionDemo, setEncryptionDemo] = useState(null);
+  const [encryptionLoading, setEncryptionLoading] = useState(false);
 
   // Validity check — params may be null from search params
   const isValid = !!consentId && !!institutionName && !!threadId;
+
+  // Fetch encryption demo when consent step is reached
+  useEffect(() => {
+    if (step !== "consent" || !consentData?.consent_id) return;
+
+    setEncryptionLoading(true);
+    const encodedId = encodeURIComponent(consentData.consent_id);
+    coreApi(`encryption-demo/compare/${encodedId}`).then(({ data, error }) => {
+      if (data && !error) {
+        setEncryptionDemo(data);
+      }
+      setEncryptionLoading(false);
+    });
+  }, [step, consentData?.consent_id]);
 
   // Auto-fetch bearer token on mount
   useEffect(() => {
@@ -188,6 +204,8 @@ export function useBankLogin({ consentId, institutionName, threadId }) {
     consentData,
     statusText,
     isValid,
+    encryptionDemo,
+    encryptionLoading,
     // Handlers
     handleBankLogin,
     handleConsentDecision,

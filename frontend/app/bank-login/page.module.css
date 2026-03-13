@@ -112,6 +112,36 @@
   color: #92400e;
 }
 
+/* PLACEHOLDER — data team added encryption proof section.
+   Colleague to restyle to match design system. */
+.encryptionProof {
+  margin-top: 16px;
+  width: 100%;
+}
+
+.encryptionProof strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.encryptionProof small {
+  display: block;
+  margin-top: 8px;
+}
+
+.encryptionTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.encryptionTable th,
+.encryptionTable td {
+  text-align: left;
+  padding: 6px;
+}
+
+.encryptionLoading {}
+
 /* PLACEHOLDER — data team added action buttons layout.
    Colleague to restyle to match design system. */
 .actions {

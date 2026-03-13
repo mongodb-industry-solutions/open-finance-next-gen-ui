@@ -27,6 +27,7 @@ function BankLoginContent() {
   const {
     step, token, tokenError, consentData, statusText, isValid,
     handleBankLogin, handleConsentDecision, handleCloseTab,
+    encryptionDemo, encryptionLoading,
   } = useBankLogin({ consentId, institutionName, threadId });
 
   // Guard: no params or no user
@@ -136,6 +137,34 @@ function BankLoginContent() {
                 </div>
               )}
             </div>
+
+            {encryptionLoading && <p className={styles.encryptionLoading}>Verifying encryption...</p>}
+            {encryptionDemo?.encryption_verified && (
+              <div className={styles.encryptionProof}>
+                <strong>Your data is encrypted at rest</strong>
+                <table className={styles.encryptionTable}>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>App sees</th>
+                      <th>On disk</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.entries(encryptionDemo.encrypted_fields).map(([field, info]) => (
+                      <tr key={field}>
+                        <td>{field.split(".").pop()}</td>
+                        <td>{Array.isArray(info.decrypted_value)
+                          ? `[${info.decrypted_value.length} items]`
+                          : String(info.decrypted_value)}</td>
+                        <td>{info.is_encrypted ? "Encrypted Binary" : info.raw_type}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <small>MongoDB Queryable Encryption</small>
+              </div>
+            )}
 
             <div className={styles.actions}>
               <Button variant="primary" onClick={() => handleConsentDecision(true)}>
