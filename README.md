@@ -12,43 +12,11 @@ Demonstrates how MongoDB Atlas powers a modern Open Finance banking interface �
 ## High-Level Architecture
 
 <!-- TODO: Add architecture diagram -->
+
 ![Architecture Diagram](placeholder-architecture-diagram.png)
 
 ```text
-┌──────────────────────────────────────────────┐
-│         Next.js 15 Frontend (port 3000)      │
-├──────────────────────────────────────────────┤
-│  Pages                                       │
-│  ├─ / (Dashboard)     → Global position,     │
-│  │                       spending charts,     │
-│  │                       product cards        │
-│  ├─ /accounts         → Internal + external  │
-│  │                       accounts & txns      │
-│  ├─ /credit-cards     → Credit card overview │
-│  ├─ /loans            → External loan data   │
-│  └─ /bank-login       → Consent approval +   │
-│                          QE visualization     │
-│                                              │
-│  Components                                  │
-│  ├─ LeafyBankAssistant → AI chat (SSE)       │
-│  ├─ NavBar             → Navigation          │
-│  ├─ OverlapCards       → Stacked card display│
-│  └─ Login              → User persona select │
-├──────────────────────────────────────────────┤
-│  Route Handlers (API Proxy)                  │
-│  ├─ /api/backend/*  → Core Backend (:8003)   │
-│  └─ /api/chatbot/*  → Chatbot Backend (:8080)│
-└──────────┬───────────────────┬───────────────┘
-           │                   │
-           ▼                   ▼
-┌──────────────────┐ ┌────────────────────────┐
-│ Open Finance     │ │ Agentic Chatbot        │
-│ Backend (:8003)  │ │ Backend (:8080)        │
-│ • Accounts       │ │ • LangGraph agents     │
-│ • Consents (QE)  │ │ • SSE streaming        │
-│ • Transactions   │ │ • Human-in-the-loop    │
-│ • Products       │ │ • MongoDB checkpoints  │
-└──────────────────┘ └────────────────────────┘
+add-description-later
 ```
 
 ## Tech Stack
@@ -180,6 +148,7 @@ docker-compose down     # Remove container
 ### Dashboard (Home Page)
 
 <!-- TODO: Add dashboard screenshot -->
+
 ![Dashboard](placeholder-dashboard.png)
 
 The home page provides a unified financial overview:
@@ -193,6 +162,7 @@ The home page provides a unified financial overview:
 ### Multi-Bank Account View
 
 <!-- TODO: Add accounts page screenshot -->
+
 ![Accounts Page](placeholder-accounts-page.png)
 
 After granting consent via the chatbot, external bank accounts appear alongside internal Leafy Bank accounts:
@@ -204,6 +174,7 @@ After granting consent via the chatbot, external bank accounts appear alongside 
 ### AI Assistant (LeafyBankAssistant)
 
 <!-- TODO: Add chatbot screenshot -->
+
 ![AI Assistant](placeholder-ai-assistant.png)
 
 A streaming chat modal powered by the agentic chatbot backend:
@@ -220,6 +191,7 @@ A streaming chat modal powered by the agentic chatbot backend:
 ### Bank Login & Consent Flow
 
 <!-- TODO: Add bank login flow screenshot -->
+
 ![Bank Login Flow](placeholder-bank-login.png)
 
 When the chatbot triggers a bank login interrupt, a new tab opens with a guided flow:
@@ -241,85 +213,10 @@ External loan products from consented institutions:
 
 Two pre-configured personas are available in the login modal:
 
-| User | Name | Role | Description |
-| ---- | ---- | ---- | ----------- |
+| User       | Name      | Role                   | Description                            |
+| ---------- | --------- | ---------------------- | -------------------------------------- |
 | `fridaklo` | Frida Klo | Accountant at Deloitte | Banked customer with existing accounts |
-| `hellyrig` | Helly Rig | Freelance Designer | Unbanked customer, new to Leafy Bank |
-
-## API Proxy Architecture
-
-The frontend uses Next.js Route Handlers as runtime proxies instead of `next.config.mjs` rewrites. This ensures:
-
-- **Runtime URL resolution** — Backend URLs read from environment variables at request time, not build time
-- **SSE streaming support** — Response bodies are piped directly without buffering
-- **Deployment flexibility** — Same build artifact works across staging and production with different backend URLs
-
-| Frontend Path | Backend Target |
-| ------------- | -------------- |
-| `/api/backend/*` | `CORE_BACKEND_URL/api/v1/*` (default: `http://localhost:8003`) |
-| `/api/chatbot/*` | `CHATBOT_BACKEND_URL/*` (default: `http://localhost:8080`) |
-
-## Data Flow
-
-### Three-Layer Hook Architecture
-
-```text
-Raw Hooks (lib/api/hooks.js)
-├── useAccounts()           → Internal bank accounts
-├── useTransactions()       → Transaction history
-├── useCreditScore()        → Credit bureau score
-├── useExternalAccounts()   → External accounts (consent-gated)
-└── useExternalProducts()   → External loans/products (consent-gated)
-        ↓
-Composed Hooks (lib/api/hooks.js)
-├── useHomeData()           → Dashboard: balance, debt, score, cards, loans
-├── useAccountsPageData()   → Accounts: merged accounts + transactions
-├── useCreditCardsPageData()→ Credit Cards: cards + filtered transactions
-└── useLoansPageData()      → Loans: external products + consent status
-        ↓
-Pages (app/*/page.js)
-├── / (Home)                → useHomeData()
-├── /accounts               → useAccountsPageData()
-├── /credit-cards           → useCreditCardsPageData()
-└── /loans                  → useLoansPageData()
-```
-
-### Complex Component Hooks
-
-| Hook | Component | Purpose |
-| ---- | --------- | ------- |
-| `useChatbot()` | LeafyBankAssistant | SSE streaming, message state, interrupt handling, thread management |
-| `useBankLogin()` | bank-login/page | Token fetch, consent SSE, encryption demo, BroadcastChannel |
-
-## State Management
-
-**UserContext** (`lib/context/UserContext.js`) provides global state:
-
-| State | Purpose |
-| ----- | ------- |
-| `selectedUser` | Current demo user + bearer token |
-| `consents` | Map of consent IDs → status and institution |
-| `authorizedConsents` | Filtered array of approved consents |
-| `profile` | Spending profile: `balanced` (default), `overspender`, `saver` |
-| `chatMessages` + `chatThreadId` | Chat history persisted across page navigation |
-
-User selection is stored in `localStorage` so the bank-login tab (opened in a new window) can access the session.
-
-## Common Errors
-
-### Frontend Errors
-
-- **Dashboard shows loading forever** — Ensure the Open Finance backend is running on port 8003.
-- **Chatbot shows error** — Ensure the Chatbot backend is running on port 8080.
-- **LeafyGreen components fail to load** — Delete `node_modules` and run `npm install` again.
-- **Port 3000 already in use** — Run `make kill` to free the port, then `make dev`.
-- **Ensure Node.js version is 22 or higher** (`node --version`).
-
-### Bank Login Errors
-
-- **Token fetch fails** — The Open Finance backend must be running and the user must exist.
-- **Consent tab doesn't communicate back** — Check that both tabs are on the same origin (`localhost:3000`). `BroadcastChannel` requires same-origin.
-- **Encryption demo table empty** — The consent must use Queryable Encryption. Check that the backend has `encrypted_consents` collection set up.
+| `hellyrig` | Helly Rig | Freelance Designer     | Unbanked customer, new to Leafy Bank   |
 
 ## Additional Resources
 
