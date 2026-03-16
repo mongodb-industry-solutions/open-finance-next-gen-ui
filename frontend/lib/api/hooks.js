@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { coreApi } from "./client";
 import { useUser } from "@/lib/context/UserContext";
+import { useEffect, useState } from "react";
+import { coreApi } from "./client";
 
 /**
  * Fetch internal Leafy Bank accounts for the logged-in user.
@@ -47,13 +47,13 @@ export function useTransactions() {
     setLoading(true);
 
     const profileParam = profile ? `?profile=${profile}` : "";
-    coreApi(`leafybank/transactions/secure/spending/${selectedUser.name}${profileParam}`).then(
-      ({ data, error: err }) => {
-        if (data?.transactions) setTransactions(data.transactions);
-        if (err) setError(err);
-        setLoading(false);
-      }
-    );
+    coreApi(
+      `leafybank/transactions/secure/spending/${selectedUser.name}${profileParam}`,
+    ).then(({ data, error: err }) => {
+      if (data?.transactions) setTransactions(data.transactions);
+      if (err) setError(err);
+      setLoading(false);
+    });
   }, [selectedUser?.name, profile]);
 
   return { transactions, loading, error };
@@ -76,7 +76,7 @@ export function useCreditScore() {
       ({ data }) => {
         if (data?.credit_score) setCreditScore(data.credit_score);
         setLoading(false);
-      }
+      },
     );
   }, [selectedUser?.name]);
 
@@ -89,13 +89,18 @@ export function useCreditScore() {
  * Each account is tagged with _sourceInstitution and _consentId.
  */
 export function useExternalAccounts() {
-  const { selectedUser, authorizedConsents, consentRefreshKey } = useUser();
+  const { selectedUser, authorizedConsents, consentRefreshKey, removeConsent } =
+    useUser();
   const [externalAccounts, setExternalAccounts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!selectedUser?.name || !selectedUser?.bearerToken || authorizedConsents.length === 0) {
+    if (
+      !selectedUser?.name ||
+      !selectedUser?.bearerToken ||
+      authorizedConsents.length === 0
+    ) {
       setExternalAccounts([]);
       return;
     }
@@ -109,16 +114,25 @@ export function useExternalAccounts() {
               "openfinance/secure/fetch-external-accounts-for-user/",
               {
                 bearerToken: selectedUser.bearerToken,
-                params: { user_identifier: selectedUser.name, consent_id: consentId },
-              }
+                params: {
+                  user_identifier: selectedUser.name,
+                  consent_id: consentId,
+                },
+              },
             );
-            if (err) return [];
+            if (err) {
+              // 403 means consent is stale/revoked — remove it from context
+              if (err.startsWith("403")) {
+                removeConsent(consentId);
+              }
+              return [];
+            }
             return (data?.accounts || []).map((a) => ({
               ...a,
               _sourceInstitution: institution,
               _consentId: consentId,
             }));
-          })
+          }),
         );
         setExternalAccounts(results.flat());
       } catch (e) {
@@ -129,8 +143,13 @@ export function useExternalAccounts() {
     };
 
     fetchAll();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedUser?.name, selectedUser?.bearerToken, authorizedConsents, consentRefreshKey]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    selectedUser?.name,
+    selectedUser?.bearerToken,
+    authorizedConsents,
+    consentRefreshKey,
+  ]);
 
   return { externalAccounts, loading, error };
 }
@@ -141,13 +160,18 @@ export function useExternalAccounts() {
  * Each product is tagged with _sourceInstitution and _consentId.
  */
 export function useExternalProducts() {
-  const { selectedUser, authorizedConsents, consentRefreshKey } = useUser();
+  const { selectedUser, authorizedConsents, consentRefreshKey, removeConsent } =
+    useUser();
   const [externalProducts, setExternalProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!selectedUser?.name || !selectedUser?.bearerToken || authorizedConsents.length === 0) {
+    if (
+      !selectedUser?.name ||
+      !selectedUser?.bearerToken ||
+      authorizedConsents.length === 0
+    ) {
       setExternalProducts([]);
       return;
     }
@@ -161,16 +185,25 @@ export function useExternalProducts() {
               "openfinance/secure/fetch-external-products-for-user/",
               {
                 bearerToken: selectedUser.bearerToken,
-                params: { user_identifier: selectedUser.name, consent_id: consentId },
-              }
+                params: {
+                  user_identifier: selectedUser.name,
+                  consent_id: consentId,
+                },
+              },
             );
-            if (err) return [];
+            if (err) {
+              // 403 means consent is stale/revoked — remove it from context
+              if (err.startsWith("403")) {
+                removeConsent(consentId);
+              }
+              return [];
+            }
             return (data?.products || []).map((p) => ({
               ...p,
               _sourceInstitution: institution,
               _consentId: consentId,
             }));
-          })
+          }),
         );
         setExternalProducts(results.flat());
       } catch (e) {
@@ -181,8 +214,13 @@ export function useExternalProducts() {
     };
 
     fetchAll();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedUser?.name, selectedUser?.bearerToken, authorizedConsents, consentRefreshKey]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    selectedUser?.name,
+    selectedUser?.bearerToken,
+    authorizedConsents,
+    consentRefreshKey,
+  ]);
 
   return { externalProducts, loading, error };
 }
@@ -214,11 +252,11 @@ export function useHomeData() {
 
   const externalDebt = externalProducts.reduce(
     (sum, p) => sum + (p.ProductBalance || 0),
-    0
+    0,
   );
 
   const bankAccounts = accounts.filter(
-    (a) => a.AccountType === "Checking" || a.AccountType === "Savings"
+    (a) => a.AccountType === "Checking" || a.AccountType === "Savings",
   );
 
   const creditCards = accounts.filter((a) => a.AccountType === "CreditCard");
@@ -268,7 +306,10 @@ export function useAccountsPageData() {
 
   const recentTxns = transactions.slice(0, 20).map((t) => ({
     category: t.TransactionMerchant?.MerchantCategory || "\u2014",
-    establishment: t.TransactionMerchant?.MerchantName || t.TransactionDescription || "\u2014",
+    establishment:
+      t.TransactionMerchant?.MerchantName ||
+      t.TransactionDescription ||
+      "\u2014",
     date: formatDate(t.TransactionDates?.[0]?.TransactionDate),
     amount: t.TransactionAmount || 0,
     type: t.TransactionCreditDebitType,
@@ -295,12 +336,17 @@ export function useCreditCardsPageData() {
 
   const cardTxns = transactions
     .filter(
-      (t) => t.TransactionReferenceData?.TransactionSender?.AccountType === "CreditCard"
+      (t) =>
+        t.TransactionReferenceData?.TransactionSender?.AccountType ===
+        "CreditCard",
     )
     .slice(0, 20)
     .map((t) => ({
       category: t.TransactionMerchant?.MerchantCategory || "\u2014",
-      establishment: t.TransactionMerchant?.MerchantName || t.TransactionDescription || "\u2014",
+      establishment:
+        t.TransactionMerchant?.MerchantName ||
+        t.TransactionDescription ||
+        "\u2014",
       date: formatDate(t.TransactionDates?.[0]?.TransactionDate),
       amount: t.TransactionAmount || 0,
     }));
