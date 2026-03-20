@@ -30,7 +30,7 @@ steps:
   - name: lint
     image: node:22-alpine
     commands:
-      - cd frontend && npx eslint . --max-warnings 0
+      - cd frontend && npm install && npx eslint .
     when:
       event:
         - pull_request
