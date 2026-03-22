@@ -26,13 +26,14 @@ export function useChatbot() {
   const [inputValue, setInputValue] = useState("");
   const [sending, setSending] = useState(false);
   const [waitingForBankLogin, setWaitingForBankLogin] = useState(false);
+  const [suggestions, setSuggestions] = useState(null);
 
   // Derive messages from context, falling back to welcome message for fresh sessions
   const messages = chatMessages || [{ type: "assistant", text: WELCOME_MESSAGE }];
   const setMessages = setChatMessages;
   const threadId = chatThreadId;
   const setThreadId = setChatThreadId;
-  const showSuggestions = !chatMessages; // show suggestions only for fresh sessions
+  const showSuggestions = !chatMessages || suggestions?.length > 0;
 
   // SSE event state
   const [stepIndicator, setStepIndicator] = useState(null);
@@ -50,7 +51,7 @@ export function useChatbot() {
     const channel = new BroadcastChannel("leafy-bank-consent");
 
     channel.onmessage = (event) => {
-      const { type, response, consentId, institution, bearerToken } = event.data;
+      const { type, response, suggestions: broadcastSuggestions, consentId, institution, bearerToken } = event.data;
 
       if (type === "consent_complete") {
         // Add the final AI response to chat messages
@@ -59,6 +60,11 @@ export function useChatbot() {
             ...(prev || []),
             { type: "assistant", text: response },
           ]);
+        }
+
+        // Show suggestions forwarded from bank-login tab
+        if (broadcastSuggestions?.length > 0) {
+          setSuggestions(broadcastSuggestions);
         }
 
         // Update bearer token if provided
@@ -226,8 +232,13 @@ export function useChatbot() {
         break;
 
       case "response":
+        setSuggestions(null);
         // Finalize steps + add the response message
         finalizeSteps([{ type: "assistant", text: payload.text }]);
+        break;
+
+      case "suggestions":
+        setSuggestions(payload.items);
         break;
 
       case "interrupt": {
@@ -279,6 +290,7 @@ export function useChatbot() {
 
     setMessages((prev) => [...(prev || [{ type: "assistant", text: WELCOME_MESSAGE }]), { type: "user", text }]);
     setInputValue("");
+    setSuggestions(null);
     pendingDetailsRef.current = [];
     setSending(true);
     setStepIndicator({ text: "Thinking...", details: [] });
@@ -383,6 +395,7 @@ export function useChatbot() {
     stepIndicator,
     interrupt,
     showSuggestions,
+    suggestions,
     threadId,
     // Handlers
     handleSend,

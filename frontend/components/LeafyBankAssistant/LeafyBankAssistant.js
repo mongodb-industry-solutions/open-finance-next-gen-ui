@@ -116,6 +116,7 @@ export default function LeafyBankAssistant({ isOpen, onClose }) {
     stepIndicator,
     interrupt,
     showSuggestions,
+    suggestions,
     threadId,
     handleSend,
     handleResume,
@@ -207,7 +208,7 @@ export default function LeafyBankAssistant({ isOpen, onClose }) {
                 {/* Suggestion Chips */}
                 {showSuggestions && (
                   <div className={styles.suggestions}>
-                    {SUGGESTIONS.map((text, i) => (
+                    {(suggestions || SUGGESTIONS).map((text, i) => (
                       <button
                         key={i}
                         className={styles.suggestionChip}
