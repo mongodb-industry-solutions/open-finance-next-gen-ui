@@ -41,7 +41,14 @@ function StepDetailItem({ detail }) {
           {detail.status === "done" ? "✓" : "●"}
         </span>
         {detail.kind === "tool" ? (
-          <code>{detail.tool}()</code>
+          <>
+            <code>{detail.tool}()</code>
+            {detail.mongodbFeature && (
+              <span style={{ marginLeft: 8, fontSize: "0.8em", opacity: 0.7 }}>
+                · {detail.mongodbFeature}
+              </span>
+            )}
+          </>
         ) : (
           <span>{detail.message}</span>
         )}

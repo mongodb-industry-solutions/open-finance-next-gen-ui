@@ -168,6 +168,7 @@ export function useChatbot() {
           tool: payload.tool,
           agent: payload.agent,
           args: payload.args,
+          mongodbFeature: payload.mongodb_feature || null,
           status: "pending",
         };
         pendingDetailsRef.current = [...pendingDetailsRef.current, detail];
