@@ -41,7 +41,14 @@ function StepDetailItem({ detail }) {
           {detail.status === "done" ? "✓" : "●"}
         </span>
         {detail.kind === "tool" ? (
-          <code>{detail.tool}()</code>
+          <>
+            <code>{detail.tool}()</code>
+            {detail.mongodbFeature && (
+              <span style={{ marginLeft: 8, fontSize: "0.8em", opacity: 0.7 }}>
+                · {detail.mongodbFeature}
+              </span>
+            )}
+          </>
         ) : (
           <span>{detail.message}</span>
         )}
@@ -116,6 +123,7 @@ export default function LeafyBankAssistant({ isOpen, onClose }) {
     stepIndicator,
     interrupt,
     showSuggestions,
+    suggestions,
     threadId,
     handleSend,
     handleResume,
@@ -207,7 +215,7 @@ export default function LeafyBankAssistant({ isOpen, onClose }) {
                 {/* Suggestion Chips */}
                 {showSuggestions && (
                   <div className={styles.suggestions}>
-                    {SUGGESTIONS.map((text, i) => (
+                    {(suggestions || SUGGESTIONS).map((text, i) => (
                       <button
                         key={i}
                         className={styles.suggestionChip}

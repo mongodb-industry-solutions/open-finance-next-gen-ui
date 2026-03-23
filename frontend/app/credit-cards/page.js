@@ -118,7 +118,7 @@ export default function CreditCardsPage() {
                   </div>
 
                   <div className={styles.cardText}>
-                    <Subtitle>Maybe it's time for a credit card?</Subtitle>
+                    <Subtitle>Maybe it&apos;s time for a credit card?</Subtitle>
                     <Body className={styles.cardBodyGray}>Let Leafy Assistant guide you</Body>
                   </div>
 

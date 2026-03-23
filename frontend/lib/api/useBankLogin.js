@@ -136,8 +136,9 @@ export function useBankLogin({ consentId, institutionName, threadId }) {
         profile: null,
       });
 
-      // Parse SSE stream to extract the final AI response
+      // Parse SSE stream to extract the final AI response and suggestions
       let finalResponse = null;
+      let finalSuggestions = null;
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
@@ -158,6 +159,8 @@ export function useBankLogin({ consentId, institutionName, threadId }) {
                   const event = JSON.parse(line.slice(6));
                   if (event.type === "response") {
                     finalResponse = event.payload?.text || null;
+                  } else if (event.type === "suggestions") {
+                    finalSuggestions = event.payload?.items || null;
                   }
                 } catch {
                   // skip malformed
@@ -176,6 +179,7 @@ export function useBankLogin({ consentId, institutionName, threadId }) {
         channel.postMessage({
           type: "consent_complete",
           response: finalResponse,
+          suggestions: finalSuggestions,
           consentId: consentData.consent_id,
           institution: consentData.source_institution || institutionName,
           bearerToken: token,
