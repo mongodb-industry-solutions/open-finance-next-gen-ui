@@ -6,6 +6,8 @@ import { H2, Body, Subtitle } from "@leafygreen-ui/typography";
 import Card from "@leafygreen-ui/card";
 import Image from "next/image";
 import Icon from "@leafygreen-ui/icon";
+import IconButton from "@leafygreen-ui/icon-button";
+import Code from "@leafygreen-ui/code";
 import OverlapCards from "../../components/OverlapCards/OverlapCards";
 import LeafyBankAssistant from "../../components/LeafyBankAssistant/LeafyBankAssistant";
 import { useCreditCardsPageData } from "@/lib/api/hooks";
@@ -33,8 +35,8 @@ const getCategoryColor = (category) => {
 export default function CreditCardsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const { selectedUser } = useUser();
-
   const { creditCards, cardTxns, accountsLoading, txLoading } = useCreditCardsPageData();
+  const [expandedRow, setExpandedRow] = useState(null);
 
   return (
     <main className={styles.container}>
@@ -46,7 +48,9 @@ export default function CreditCardsPage() {
             {accountsLoading ? (
               <Body>Loading cards...</Body>
             ) : (
-              <OverlapCards items={creditCards} />
+              <div className={styles.scrollWrapper}>
+                <OverlapCards items={creditCards} />
+              </div>
             )}
           </Card>
           <Card className={styles.topCard}>
@@ -150,27 +154,52 @@ export default function CreditCardsPage() {
             <tbody>
               {txLoading ? (
                 <tr>
-                  <td colSpan={5}>Loading transactions...</td>
+                  <td colSpan={6}>Loading transactions...</td>
                 </tr>
               ) : cardTxns.length > 0 ? (
                 cardTxns.map((t, i) => (
-                  <tr key={i}>
-                    <td className={styles.categoryCircleCell}>
-                      <div
-                        className={styles.categoryCircle}
-                        style={{ backgroundColor: getCategoryColor(t.category) }}
-                      ></div>
-                    </td>
-                    <td>{t.category}</td>
-                    <td>{t.establishment}</td>
-                    <td>{t.date}</td>
-                    <td style={{ textAlign: "right" }}>
-                      {t.amount.toLocaleString(undefined, {
-                        style: "currency",
-                        currency: "USD",
-                      })}
-                    </td>
-                  </tr>
+
+                  <React.Fragment key={i}>
+                    <tr key={i}>
+                      <td className={styles.categoryCircleCell}>
+                        <div
+                          className={styles.categoryCircle}
+                          style={{ backgroundColor: getCategoryColor(t.category) }}
+                        ></div>
+                      </td>
+                      <td>{t.category}</td>
+                      <td>{t.establishment}</td>
+                      <td>{t.date}</td>
+                      <td style={{ textAlign: "right" }}>
+                        {t.amount.toLocaleString(undefined, {
+                          style: "currency",
+                          currency: "USD",
+                        })}
+                      </td>
+
+                      <td>
+
+                        <IconButton
+                          className={styles.iconButton}
+                          onClick={() =>
+                            setExpandedRow(expandedRow === i ? null : i)
+                          }>
+                          <Icon glyph="CurlyBraces" />
+                        </IconButton>
+
+                      </td>
+                    </tr>
+
+                    {expandedRow === i && (
+                      <tr className={styles.expandedRow}>
+                        <td colSpan={6}>
+                          <div className={styles.expandedContent}>
+                            <Code language="json">{JSON.stringify(t, null, 2)}</Code>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 ))
               ) : (
                 <tr>

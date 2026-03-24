@@ -6,6 +6,7 @@ import { H2, Body, Subtitle } from "@leafygreen-ui/typography";
 import Card from "@leafygreen-ui/card";
 import Button from "@leafygreen-ui/button";
 import styles from "./page.module.css";
+import Banner from "@leafygreen-ui/banner";
 import { useBankLogin } from "@/lib/api/useBankLogin";
 
 export default function BankLoginPage() {
@@ -98,7 +99,7 @@ function BankLoginContent() {
           </div>
         )}
 
-        
+
 
         {/* Step: Consent Approval */}
         {step === "consent" && consentData && (
@@ -141,7 +142,15 @@ function BankLoginContent() {
             {encryptionLoading && <p className={styles.encryptionLoading}>Verifying encryption...</p>}
             {encryptionDemo?.encryption_verified && (
               <div className={styles.encryptionProof}>
-                <strong>Your data is encrypted at rest</strong>
+                <Banner variant="info">
+                  <strong>Your data is encrypted in use  🔐</strong>
+
+                  This means your sensitive information is securely encrypted before being stored,
+                  and only decrypted when accessed with proper authorization.
+                  <br /><br />
+                  Powered by MongoDB Queryable Encryption, which allows data to remain encrypted
+                  even while being queried — ensuring maximum privacy and security.
+                </Banner>
                 <table className={styles.encryptionTable}>
                   <thead>
                     <tr>
@@ -157,12 +166,13 @@ function BankLoginContent() {
                         <td>{Array.isArray(info.decrypted_value)
                           ? `[${info.decrypted_value.length} items]`
                           : String(info.decrypted_value)}</td>
-                        <td>{info.is_encrypted ? "Encrypted Binary" : info.raw_type}</td>
+                        <td>
+                          <span className={styles.encryptedBadge}>{info.is_encrypted ? "🔒 Encrypted Binary" : info.raw_type}</span>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-                <small>MongoDB Queryable Encryption</small>
               </div>
             )}
 

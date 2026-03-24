@@ -31,6 +31,12 @@
     border-radius: 24px;
 }
 
+.scrollWrapper {
+  height: 100%;
+  overflow-y: auto; /* makes the content scrollable if it overflows */
+  width: 100%;
+}
+
 .iframeWrap {
     width: 100%;
   height: 100%;

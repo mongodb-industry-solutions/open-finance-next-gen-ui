@@ -6,8 +6,11 @@ import { H2, Body, Subtitle } from "@leafygreen-ui/typography";
 import Card from "@leafygreen-ui/card";
 import Image from "next/image";
 import Icon from "@leafygreen-ui/icon";
+
 import OverlapCards from "../../components/OverlapCards/OverlapCards";
 import LeafyBankAssistant from "../../components/LeafyBankAssistant/LeafyBankAssistant";
+import IconButton from "@leafygreen-ui/icon-button";
+import Code from "@leafygreen-ui/code";
 import { useAccountsPageData } from "@/lib/api/hooks";
 import { useUser } from "@/lib/context/UserContext";
 
@@ -34,6 +37,8 @@ export default function AccountsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const { selectedUser } = useUser();
   const { allAccounts, recentTxns, accountsLoading, txLoading } = useAccountsPageData();
+  const [expandedRow, setExpandedRow] = useState(null);
+
 
   return (
     <main className={styles.container}>
@@ -44,24 +49,26 @@ export default function AccountsPage() {
             {accountsLoading ? (
               <Body>Loading accounts...</Body>
             ) : (
-              <OverlapCards items={allAccounts.length > 0 ? allAccounts : []} />
+              <div className={styles.scrollWrapper}>
+                <OverlapCards items={allAccounts.length > 0 ? allAccounts : []} />
+              </div>
             )}
           </Card>
           <Card className={styles.topCard}>
             {selectedUser?.name === 'fridaklo' && (
               <div className={styles.iframeWrap}>
-                <iframe 
-                  width="640" 
-                  height="480" 
+                <iframe
+                  width="640"
+                  height="480"
                   src="https://charts.mongodb.com/charts-jeffn-zsdtj/embed/charts?id=1066e97f-6628-49be-a720-462c0d87d32c&maxDataAge=3600&theme=light&autoRefresh=true"
                 ></iframe>
               </div>
             )}
             {selectedUser?.name === 'hellyrig' && (
               <div className={styles.iframeWrap}>
-                <iframe 
-                  width="640" 
-                  height="480" 
+                <iframe
+                  width="640"
+                  height="480"
                   src="https://charts.mongodb.com/charts-jeffn-zsdtj/embed/charts?id=45137520-16e5-430a-8a12-b07deca1b69e&maxDataAge=3600&theme=light&autoRefresh=true"
                 ></iframe>
               </div>
@@ -76,18 +83,18 @@ export default function AccountsPage() {
               <div className={styles.stackTopInner}>
                 {selectedUser?.name === 'fridaklo' && (
                   <div className={styles.iframeWrap}>
-                    <iframe 
-                      width="640" 
-                      height="480" 
+                    <iframe
+                      width="640"
+                      height="480"
                       src="https://charts.mongodb.com/charts-jeffn-zsdtj/embed/charts?id=b2f07682-5ce1-4955-9e7f-703ba881404b&maxDataAge=3600&theme=light&autoRefresh=true"
                     ></iframe>
                   </div>
                 )}
                 {selectedUser?.name === 'hellyrig' && (
                   <div className={styles.iframeWrap}>
-                    <iframe 
-                      width="640" 
-                      height="480" 
+                    <iframe
+                      width="640"
+                      height="480"
                       src="https://charts.mongodb.com/charts-jeffn-zsdtj/embed/charts?id=b421bdc8-3f1f-42ec-ac02-91196c36a1dd&maxDataAge=3600&theme=light&autoRefresh=true"
                     ></iframe>
                   </div>
@@ -155,27 +162,54 @@ export default function AccountsPage() {
             <tbody>
               {txLoading ? (
                 <tr>
-                  <td colSpan={5}>Loading transactions...</td>
+                  <td colSpan={6}>Loading transactions...</td>
                 </tr>
               ) : recentTxns.length > 0 ? (
                 recentTxns.map((t, idx) => (
-                  <tr key={idx}>
-                    <td className={styles.categoryCircleCell}>
-                      <div 
-                        className={styles.categoryCircle}
-                        style={{ backgroundColor: getCategoryColor(t.category) }}
-                      ></div>
-                    </td>
-                    <td>{t.category}</td>
-                    <td>{t.establishment}</td>
-                    <td>{t.date}</td>
-                    <td style={{ textAlign: "right" }}>
-                      {t.amount.toLocaleString(undefined, {
-                        style: "currency",
-                        currency: "USD",
-                      })}
-                    </td>
-                  </tr>
+                  <React.Fragment key={idx}>
+
+                    <tr key={idx}>
+                      <td className={styles.categoryCircleCell}>
+                        <div
+                          className={styles.categoryCircle}
+                          style={{ backgroundColor: getCategoryColor(t.category) }}
+                        ></div>
+                      </td>
+                      <td>{t.category}</td>
+                      <td>{t.establishment}</td>
+                      <td>{t.date}</td>
+                      <td style={{ textAlign: "right" }}>
+                        {t.amount.toLocaleString(undefined, {
+                          style: "currency",
+                          currency: "USD",
+                        })}
+                      </td>
+
+                      <td>
+
+                        <IconButton
+                          aria-label="curly icon"
+                          className={styles.iconButton}
+                          onClick={() =>
+                            setExpandedRow(expandedRow === idx ? null : idx)
+                          }>
+                          <Icon glyph="CurlyBraces" />
+                        </IconButton>
+
+                      </td>
+                    </tr>
+
+                    {expandedRow === idx && (
+                      <tr className={styles.expandedRow}>
+                        <td colSpan={6}>
+                          <div className={styles.expandedContent}>
+                            <Code language="json">{JSON.stringify(t, null, 2)}</Code>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+
                 ))
               ) : (
                 <tr>

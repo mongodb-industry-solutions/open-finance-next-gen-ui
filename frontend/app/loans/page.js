@@ -6,6 +6,8 @@ import { H2, Body, Subtitle } from "@leafygreen-ui/typography";
 import Card from "@leafygreen-ui/card";
 import Image from "next/image";
 import Icon from "@leafygreen-ui/icon";
+import IconButton from "@leafygreen-ui/icon-button";
+import Code from "@leafygreen-ui/code";
 import OverlapCards from "../../components/OverlapCards/OverlapCards";
 import LeafyBankAssistant from "../../components/LeafyBankAssistant/LeafyBankAssistant";
 import { useLoansPageData } from "@/lib/api/hooks";
@@ -13,6 +15,34 @@ import { useLoansPageData } from "@/lib/api/hooks";
 export default function LoansPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const { loanCards, loanTableRows, loading, hasActiveConsent } = useLoansPageData();
+  const [expandedRow, setExpandedRow] = useState(null);
+
+  function LoanProgressCard({ row }) {
+    const ProductAmount = 30000; // TO BE REPLACED
+    const paid = ProductAmount - row.outstanding;
+    const percent = ((paid / ProductAmount) * 100).toFixed(2);
+
+    let message = "";
+    if (percent >= 90) message = "You're almost there!";
+    else if (percent >= 50) message = "Halfway done!";
+    else message = "Keep going!";
+
+    return (
+      <Card className={styles.progressCard}>
+        <Body className={styles.productName}>{row.type}</Body>
+
+        <div className={styles.progressBarBackground}>
+          <div
+            className={styles.progressBarFill}
+            style={{ width: `${percent}%` }}
+          />
+          <span className={styles.progressPercent}>{percent}%</span>
+        </div>
+
+        <Body>{message}</Body>
+      </Card>
+    );
+  }
 
   return (
     <main className={styles.container}>
@@ -24,7 +54,10 @@ export default function LoansPage() {
             {loading ? (
               <Body>Loading loans...</Body>
             ) : loanCards.length > 0 ? (
-              <OverlapCards items={loanCards} />
+              <div className={styles.scrollWrapper}>
+                <OverlapCards items={loanCards} />
+
+              </div>
             ) : (
               <div style={{ padding: "20px", textAlign: "center" }}>
                 <Body className={styles.cardBodyGray}>
@@ -35,14 +68,65 @@ export default function LoansPage() {
               </div>
             )}
           </Card>
+
           <Card className={styles.topCard}>
-            
+            {loading ? (
+              <Body>Loading progress...</Body>
+            ) : loanTableRows.length > 0 ? (
+              <div className={styles.scrollWrapper}>
+                {loanTableRows.map((row, i) => (
+                  <LoanProgressCard key={i} row={row} />
+                ))}
+              </div>
+            ) : (
+              <div style={{ padding: "20px", textAlign: "center" }}>
+                <Body className={styles.cardBodyGray}>
+                  {hasActiveConsent
+                    ? "No external loan products found"
+                    : "Connect your external bank via the chatbot to see your loans"}
+                </Body>
+              </div>
+            )}
           </Card>
 
           <div className={styles.stackColumn}>
+
+
             <Card className={styles.stackTopCard}>
+
+              <Subtitle>Other Analytics</Subtitle>
+
               <div className={styles.stackTopInner}>
-                <Subtitle>Other analytics</Subtitle>
+                {loading ? (
+                  <Body>Loading analytics...</Body>
+                ) : loanTableRows.length > 0 ? (
+                  <>
+
+                    <Card className={styles.kpiCard} >
+                      <span className={styles.kpiNumber}> {loanTableRows.length}  </span>
+                      <span className={styles.kpiLabel}>Active loans</span>
+                    </Card>
+
+                    <Card className={styles.kpiCard}>
+                      <span className={styles.kpiNumber}>
+                        {loanTableRows
+                          .reduce((sum, row) => sum + row.outstanding, 0)
+                          .toLocaleString(undefined, {
+                            style: "currency",
+                            currency: "USD",
+                          })}
+                      </span>
+                      <span className={styles.kpiLabel}>Total outstanding</span>
+                    </Card>
+
+                  </>
+                ) : (
+                  <Body className={styles.cardBodyGray}>
+                    {hasActiveConsent
+                      ? "No analytics available"
+                      : "Connect your external bank to see analytics"}
+                  </Body>
+                )}
               </div>
             </Card>
 
@@ -95,17 +179,41 @@ export default function LoansPage() {
               </thead>
               <tbody>
                 {loanTableRows.map((row, i) => (
-                  <tr key={i}>
-                    <td>{row.type}</td>
-                    <td>{row.institution}</td>
-                    <td>{row.contract}</td>
-                    <td style={{ textAlign: "right" }}>
-                      {row.outstanding.toLocaleString(
-                        undefined,
-                        { style: "currency", currency: "USD" }
-                      )}
-                    </td>
-                  </tr>
+                  <React.Fragment key={i}>
+                    <tr key={i}>
+                      <td>{row.type}</td>
+                      <td>{row.institution}</td>
+                      <td>{row.contract}</td>
+                      <td style={{ textAlign: "right" }}>
+                        {row.outstanding.toLocaleString(
+                          undefined,
+                          { style: "currency", currency: "USD" }
+                        )}
+                      </td>
+                      <td>
+
+                        <IconButton
+                          aria-label={`View details for loan`}
+                          className={styles.iconButton}
+                          onClick={() =>
+                            setExpandedRow(expandedRow === i ? null : i)
+                          }>
+                          <Icon glyph="CurlyBraces" />
+                        </IconButton>
+
+                      </td>
+                    </tr>
+
+                    {expandedRow === i && (
+                      <tr className={styles.expandedRow}>
+                        <td colSpan={6}>
+                          <div className={styles.expandedContent}>
+                            <Code language="json">{JSON.stringify(row, null, 2)}</Code>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>

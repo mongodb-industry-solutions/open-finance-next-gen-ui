@@ -1,6 +1,8 @@
 import "./globals.css";
 import { Providers } from "./providers";
 import NavBar from "@/components/NavBar/NavBar";
+import FloatingAssistant from "@/components/FloatingAssistant/FloatingAssistant";
+
 
 // TODO: Update metadata with actual demo details
 export const metadata = {
@@ -15,6 +17,7 @@ export default function RootLayout({ children }) {
         <Providers>
           <NavBar />
           <div className="appContent">{children}</div>
+          <FloatingAssistant />
         </Providers>
       </body>
     </html>

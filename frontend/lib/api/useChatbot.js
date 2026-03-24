@@ -382,9 +382,11 @@ export function useChatbot() {
 
   // --- Markdown rendering ---
 
-  function renderMarkdown(text) {
-    return { __html: marked.parse(text) };
-  }
+ function renderMarkdown(text) {
+  // If text is an array, join it with two line breaks (for paragraphs)
+  const markdown = Array.isArray(text) ? text.join("\n\n") : text;
+  return { __html: marked.parse(markdown) };
+}
 
   return {
     // State

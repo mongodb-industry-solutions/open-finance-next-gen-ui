@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@leafygreen-ui/code": "^20.2.7",
+    "@leafygreen-ui/icon-button": "^17.1.5"
+  }
+}
