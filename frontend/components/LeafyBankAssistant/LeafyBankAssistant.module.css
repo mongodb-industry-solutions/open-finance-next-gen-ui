@@ -53,34 +53,58 @@
   flex-direction: column;
   height: 100%;
   width: 70vw;
+  overflow: hidden;
 }
 
 /* Wrapper around Tabs */
 .tabsWrapper {
- flex: 1 1 auto; /* take remaining vertical space */
+  flex: 1 1 auto;
+  min-height: 0; /* allow flex child to shrink below content size — enables scroll */
   display: flex;
   flex-direction: column;
 }
 
-/* Leafy Green Tabs fixes */
-.chatContainer :global(.lg-tabs) {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
+/* LeafyGreen Tabs flex-chain fix.
+   Tabs root has two children: tab-container (tab buttons) and panels-container.
+   We only flex the panels branch — :last-of-type avoids the tab list.
+   !important needed to override Emotion CSS-in-JS. */
+
+/* Tabs root — direct child of tabsWrapper */
+.tabsWrapper > div {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  min-height: 0 !important;
 }
 
-.chatContainer :global(.lg-tabs__tabpanels) {
-  flex: 1;
-  display: flex;
-  min-height: 0;
+/* Panels container — last div child of Tabs root (skips tab-container) */
+.tabsWrapper > div > div:last-of-type {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  min-height: 0 !important;
 }
 
-.chatContainer :global([role="tabpanel"]) {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
+/* Panel wrappers — only the one with content should grow.
+   Empty wrappers (inactive tabs) must not take flex space. */
+.tabsWrapper > div > div:last-of-type > div:empty {
+  flex: 0 !important;
+  display: none !important;
+}
+
+.tabsWrapper > div > div:last-of-type > div:not(:empty) {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+
+/* tabpanel inside active panel wrapper */
+.tabsWrapper > div > div:last-of-type > div:not(:empty) > div {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  min-height: 0 !important;
 }
 
 /* Chat layout */
