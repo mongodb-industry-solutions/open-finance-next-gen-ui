@@ -18,9 +18,9 @@ export default function LoansPage() {
   const [expandedRow, setExpandedRow] = useState(null);
 
   function LoanProgressCard({ row }) {
-    const ProductAmount = 30000; // TO BE REPLACED
-    const paid = ProductAmount - row.outstanding;
-    const percent = ((paid / ProductAmount) * 100).toFixed(2);
+    const originalAmount = row.originalAmount || row.outstanding;
+    const paid = originalAmount - row.outstanding;
+    const percent = originalAmount > 0 ? ((paid / originalAmount) * 100).toFixed(2) : 0;
 
     let message = "";
     if (percent >= 90) message = "You're almost there!";

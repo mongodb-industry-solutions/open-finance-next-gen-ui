@@ -366,6 +366,7 @@ export function useLoansPageData() {
     title: p.ProductName || p.ProductType || "Loan",
     number: p.ProductId || p._id || "",
     amount: p.ProductBalance || 0,
+    originalAmount: p.ProductAmount || 0,
   }));
 
   const loanTableRows = externalProducts.map((p) => ({
@@ -373,6 +374,7 @@ export function useLoansPageData() {
     institution: p._sourceInstitution || p.ProductBank || "\u2014",
     contract: p.ProductId || "\u2014",
     outstanding: p.ProductBalance || 0,
+    originalAmount: p.ProductAmount || 0,
   }));
 
   return { loanCards, loanTableRows, loading, hasActiveConsent };
