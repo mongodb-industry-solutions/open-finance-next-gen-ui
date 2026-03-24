@@ -239,3 +239,6 @@ frontend/next-env.d.ts
 _state.md
 setup-hooks.sh
 .gitignore
+
+# Node modules
+node_modules/

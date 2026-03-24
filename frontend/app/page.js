@@ -16,40 +16,9 @@ import { formatCurrency } from "@/lib/api/format";
 
 const HomeContent = () => {
   const [modalOpen, setModalOpen] = useState(false);
-  const [currentContentIndex, setCurrentContentIndex] = useState(0);
   const { selectedUser } = useUser();
   const { totalBalance, totalDebt, bankAccounts, creditCards, creditScore, loans, loading } = useHomeData();
-
-  const rotatingContent = [
-    {
-      title: "Maybe it's time to get a new credit card?",
-      description: "Let Leafy Assistant guide you",
-      image: "/credit_card.gif",
-      alt: "credit card"
-    },
-    {
-      title: "Explore loan options",
-      description: "Find the best rates for your needs",
-      image: "/loan.gif",
-      alt: "loan"
-    },
-    {
-      title: "Personal finance tips",
-      description: "Improve your financial health",
-      image: "/tips.gif",
-      alt: "personal finance"
-    }
-  ];
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentContentIndex((prevIndex) => (prevIndex + 1) % rotatingContent.length);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [rotatingContent.length]);
-
-  const currentContent = rotatingContent[currentContentIndex];
+  const [pendingPrompt, setPendingPrompt] = useState(null);
 
   return (
     <main className={styles.container}>
@@ -97,18 +66,18 @@ const HomeContent = () => {
             <Card className={styles.leafyCard}>
               {selectedUser?.name === 'fridaklo' && (
                 <div className={styles.pieChartWrap}>
-                  <iframe 
-                    width="640" 
-                    height="480" 
+                  <iframe
+                    width="640"
+                    height="480"
                     src="https://charts.mongodb.com/charts-jeffn-zsdtj/embed/charts?id=69a017b3-1c44-4849-ae8e-22b85402ae39&maxDataAge=3600&theme=light&autoRefresh=true"
                   ></iframe>
                 </div>
               )}
               {selectedUser?.name === 'hellyrig' && (
                 <div className={styles.pieChartWrap}>
-                  <iframe 
-                    width="640" 
-                    height="480" 
+                  <iframe
+                    width="640"
+                    height="480"
                     src="https://charts.mongodb.com/charts-jeffn-zsdtj/embed/charts?id=028e0b6f-9882-496f-80ab-6929ad2d49b8&maxDataAge=3600&theme=light&autoRefresh=true"
                   ></iframe>
                 </div>
@@ -124,20 +93,20 @@ const HomeContent = () => {
             <Card className={styles.leafyCard}>
               {selectedUser?.name === 'fridaklo' && (
                 <div className={styles.pieChartWrap}>
-                  <iframe 
-                    style={{background: '#FFFFFF', border: 'none', borderRadius: '2px', boxShadow: '0 2px 10px 0 rgba(70, 76, 79, .2)'}} 
-                    width="640" 
-                    height="480" 
+                  <iframe
+                    style={{ background: '#FFFFFF', border: 'none', borderRadius: '2px', boxShadow: '0 2px 10px 0 rgba(70, 76, 79, .2)' }}
+                    width="640"
+                    height="480"
                     src="https://charts.mongodb.com/charts-jeffn-zsdtj/embed/charts?id=1066e97f-6628-49be-a720-462c0d87d32c&maxDataAge=3600&theme=light&autoRefresh=true"
                   ></iframe>
                 </div>
               )}
               {selectedUser?.name === 'hellyrig' && (
                 <div className={styles.pieChartWrap}>
-                  <iframe 
-                    style={{background: '#FFFFFF', border: 'none', borderRadius: '2px', boxShadow: '0 2px 10px 0 rgba(70, 76, 79, .2)'}} 
-                    width="640" 
-                    height="480" 
+                  <iframe
+                    style={{ background: '#FFFFFF', border: 'none', borderRadius: '2px', boxShadow: '0 2px 10px 0 rgba(70, 76, 79, .2)' }}
+                    width="640"
+                    height="480"
                     src="https://charts.mongodb.com/charts-jeffn-zsdtj/embed/charts?id=45137520-16e5-430a-8a12-b07deca1b69e&maxDataAge=3600&theme=light&autoRefresh=true"
                   ></iframe>
                 </div>
@@ -158,24 +127,27 @@ const HomeContent = () => {
           <div className={`${styles.card} ${styles.cardEqual}`}>
             <Card className={styles.leafyCard}>
               <button
-                onClick={() => setModalOpen(true)}
+                onClick={() => {
+                  setPendingPrompt("I want to port my loan to a better rate");
+                  setModalOpen(true);
+                }}
                 className={styles.entitiesButton}
-                aria-label="Open Leafy Assistant"
+                aria-label="Switch to a better loan"
               >
                 <div className={styles.cardContent}>
                   <div className={styles.thumbWrap}>
                     <Image
-                      src={currentContent.image}
-                      alt={currentContent.alt}
-                      width={70}
-                      height={70}
+                      src="/tips.gif"
+                      alt="thumbnail"
+                      width={85}
+                      height={85}
                     />
                   </div>
 
                   <div className={styles.cardText}>
-                    <Subtitle>{currentContent.title}</Subtitle>
+                    <Subtitle>Switch to a better loan</Subtitle>
                     <Body className={styles.cardBodyGray}>
-                      {currentContent.description}
+                      Find better rates and move your existing loans with less hassle.
                     </Body>
                   </div>
 
@@ -189,14 +161,17 @@ const HomeContent = () => {
           <div className={`${styles.card} ${styles.cardEqual}`}>
             <Card className={styles.leafyCard}>
               <button
-                onClick={() => setModalOpen(true)}
+                onClick={() => {
+                  setPendingPrompt("I want financial advice");
+                  setModalOpen(true);
+                }}
                 className={styles.entitiesButton}
-                aria-label="Add other financial entities"
+                aria-label="Get a complete view of your finances"
               >
                 <div className={styles.cardContent}>
                   <div className={styles.thumbWrap}>
                     <Image
-                      src="/thumbnail.png"
+                      src="/credit_card.gif"
                       alt="thumbnail"
                       width={70}
                       height={70}
@@ -204,9 +179,9 @@ const HomeContent = () => {
                   </div>
 
                   <div className={styles.cardText}>
-                    <Subtitle>Add other financial entities</Subtitle>
+                    <Subtitle>Get a complete view of your finances</Subtitle>
                     <Body className={styles.cardBodyGray}>
-                      Get a clear view of all your money
+                      See all your accounts in one place and make smarter financial decisions.
                     </Body>
                   </div>
 
@@ -304,6 +279,7 @@ const HomeContent = () => {
       <LeafyBankAssistant
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
+        initialPrompt={pendingPrompt}
       />
     </main>
   );
