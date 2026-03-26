@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Body } from "@leafygreen-ui/typography";
+import { useEffect, useState } from "react";
 import LeafyBankAssistant from "../LeafyBankAssistant/LeafyBankAssistant";
 import styles from "./FloatingAssistant.module.css";
 
@@ -15,13 +15,13 @@ export default function FloatingAssistant() {
   };
 
   useEffect(() => {
-  const timer = setTimeout(() => {
-    setFadeOut(true);
-    setTimeout(() => setShowBubble(false), 500);
-  }, 4000);
+    const timer = setTimeout(() => {
+      setFadeOut(true);
+      setTimeout(() => setShowBubble(false), 500);
+    }, 4000);
 
-  return () => clearTimeout(timer);
-}, []);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <>
@@ -36,16 +36,10 @@ export default function FloatingAssistant() {
           </div>
         )}
 
-        <img
-          src="/agent.png"
-          alt="Chat Icon"
-          className={styles.chatIcon}
-        />
+        <img src="/agent.png" alt="Chat Icon" className={styles.chatIcon} />
 
         <div className={styles.textWrapper}>
-          <Body className={styles.chatbotText}>
-            Leafy Assistant
-          </Body>
+          <Body className={styles.chatbotText}>Leafy Assistant</Body>
 
           <div className={styles.statusWrapper}>
             <div className={styles.indicator}></div>
@@ -57,6 +51,7 @@ export default function FloatingAssistant() {
       <LeafyBankAssistant
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
+        initialPrompt="What can you tell me about my Leafy Bank data?"
       />
     </>
   );

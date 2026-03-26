@@ -1,22 +1,21 @@
 "use client";
 
 import { useChatbot } from "@/lib/api/useChatbot";
+import { TALK_TRACK } from "@/lib/const/talkTrack";
 import Button from "@leafygreen-ui/button";
+import { Tab, Tabs } from "@leafygreen-ui/tabs";
 import { Body, H2 } from "@leafygreen-ui/typography";
 import { useEffect, useRef, useState } from "react";
-import { Tabs, Tab } from '@leafygreen-ui/tabs';
-import { TALK_TRACK } from "@/lib/const/talkTrack";
 
 import styles from "./LeafyBankAssistant.module.css";
 
 const SUGGESTIONS = [
+  "What can you tell me about my Leafy Bank data?",
   "I want to port my vehicle loan to a better rate",
   "I want to port my payroll deductible loan to a better rate",
   "I want to port my personal loan to a better rate",
-  "Show me my existing loan details",
   "I want financial advice",
 ];
-
 
 /**
  * Renders a single step detail item (tool call or progress sub-step).
@@ -74,7 +73,9 @@ function StepDetailItem({ detail }) {
           {detail.summary && (
             <>
               <div className={styles.toolLabelOutput}>output</div>
-              <pre className={styles.toolOutput}>{formatJSON(detail.summary)}</pre>
+              <pre className={styles.toolOutput}>
+                {formatJSON(detail.summary)}
+              </pre>
             </>
           )}
         </div>
@@ -169,21 +170,25 @@ export default function LeafyBankAssistant({ isOpen, onClose, initialPrompt }) {
     }
   }, [isOpen, initialPrompt]);
 
-
-
   return (
     <>
       {isOpen && (
         <div className={styles.customModalBackdrop} onClick={onClose}>
-          <div className={styles.customModalContainer} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={styles.customModalContainer}
+            onClick={(e) => e.stopPropagation()}
+          >
             <button className={styles.closeButton} onClick={onClose}>
               ×
             </button>
             <div className={styles.chatContainer}>
-
               <div className={styles.chatHeader}>
                 <div className={styles.chatHeaderContent}>
-                  <img src="/agent.png" alt="Agent" className={styles.agentImage} />
+                  <img
+                    src="/agent.png"
+                    alt="Agent"
+                    className={styles.agentImage}
+                  />
                   <div className={styles.headerTitleWrapper}>
                     <H2 className={styles.chatTitle}>Leafy Bank Assistant</H2>
                     <div className={styles.status}>
@@ -200,9 +205,12 @@ export default function LeafyBankAssistant({ isOpen, onClose, initialPrompt }) {
               </div>
 
               <div className={styles.tabsWrapper}>
-                <Tabs aria-label="Chat tabs" selected={activeTab} setSelected={setActiveTab}>
+                <Tabs
+                  aria-label="Chat tabs"
+                  selected={activeTab}
+                  setSelected={setActiveTab}
+                >
                   <Tab name="AI Assistant">
-
                     <div className={styles.chatTabContent}>
                       <div className={styles.chatMessages}>
                         {messages.map((msg, i) => {
@@ -222,20 +230,25 @@ export default function LeafyBankAssistant({ isOpen, onClose, initialPrompt }) {
                           return (
                             <div
                               key={i}
-                              className={`${styles.message} ${msg.type === "user"
-                                ? styles.userMessage
-                                : msg.type === "error"
-                                  ? styles.errorMessage
-                                  : styles.assistantMessage
-                                }`}
+                              className={`${styles.message} ${
+                                msg.type === "user"
+                                  ? styles.userMessage
+                                  : msg.type === "error"
+                                    ? styles.errorMessage
+                                    : styles.assistantMessage
+                              }`}
                             >
                               {msg.type === "assistant" ? (
                                 <div
                                   className={styles.messageText}
-                                  dangerouslySetInnerHTML={renderMarkdown(msg.text)}
+                                  dangerouslySetInnerHTML={renderMarkdown(
+                                    msg.text,
+                                  )}
                                 />
                               ) : (
-                                <Body className={styles.messageText}>{msg.text}</Body>
+                                <Body className={styles.messageText}>
+                                  {msg.text}
+                                </Body>
                               )}
                             </div>
                           );
@@ -278,11 +291,13 @@ export default function LeafyBankAssistant({ isOpen, onClose, initialPrompt }) {
                           <div className={styles.waitingState}>
                             <div className={styles.stepHeader}>
                               <div className={styles.spinner} />
-                              <span>Waiting for bank login in the other tab...</span>
+                              <span>
+                                Waiting for bank login in the other tab...
+                              </span>
                             </div>
                             <Body className={styles.waitingHint}>
-                              Complete the login and consent approval in the new tab. This
-                              chat will update automatically.
+                              Complete the login and consent approval in the new
+                              tab. This chat will update automatically.
                             </Body>
                           </div>
                         )}
@@ -310,7 +325,8 @@ export default function LeafyBankAssistant({ isOpen, onClose, initialPrompt }) {
                             )}
                             {interrupt.source_institution && (
                               <div className={styles.interruptDetails}>
-                                <strong>Source:</strong> {interrupt.source_institution}
+                                <strong>Source:</strong>{" "}
+                                {interrupt.source_institution}
                               </div>
                             )}
                             {interrupt.expiration && (
@@ -319,10 +335,16 @@ export default function LeafyBankAssistant({ isOpen, onClose, initialPrompt }) {
                               </div>
                             )}
                             <div className={styles.interruptActions}>
-                              <Button variant="primary" onClick={() => handleResume(true)}>
+                              <Button
+                                variant="primary"
+                                onClick={() => handleResume(true)}
+                              >
                                 Approve Consent
                               </Button>
-                              <Button variant="default" onClick={() => handleResume(false)}>
+                              <Button
+                                variant="default"
+                                onClick={() => handleResume(false)}
+                              >
                                 Decline
                               </Button>
                             </div>
@@ -333,8 +355,6 @@ export default function LeafyBankAssistant({ isOpen, onClose, initialPrompt }) {
                       </div>
 
                       <div className={styles.chatInputContainer}>
-
-
                         <input
                           ref={inputRef}
                           type="text"
@@ -354,7 +374,9 @@ export default function LeafyBankAssistant({ isOpen, onClose, initialPrompt }) {
                         <Button
                           variant="primary"
                           onClick={() => handleSend()}
-                          disabled={sending || waitingForBankLogin || !inputValue.trim()}
+                          disabled={
+                            sending || waitingForBankLogin || !inputValue.trim()
+                          }
                         >
                           Send
                         </Button>
@@ -368,17 +390,27 @@ export default function LeafyBankAssistant({ isOpen, onClose, initialPrompt }) {
                       <div className={styles.scrollableTabContent}>
                         {tab.content.map((item, i) => (
                           <div key={i} className={styles.tabSection}>
-                            {item.heading && <H2 className={styles.tabSectionHeading}>{item.heading}</H2>}
+                            {item.heading && (
+                              <H2 className={styles.tabSectionHeading}>
+                                {item.heading}
+                              </H2>
+                            )}
 
                             {item.body && (
                               <div
                                 className={styles.markdownBody}
-                                dangerouslySetInnerHTML={renderMarkdown(item.body)}
+                                dangerouslySetInnerHTML={renderMarkdown(
+                                  item.body,
+                                )}
                               />
                             )}
 
                             {item.image && (
-                              <img src={item.image.src} alt={item.image.alt} className={styles.tabImage} />
+                              <img
+                                src={item.image.src}
+                                alt={item.image.alt}
+                                className={styles.tabImage}
+                              />
                             )}
                           </div>
                         ))}
@@ -388,12 +420,9 @@ export default function LeafyBankAssistant({ isOpen, onClose, initialPrompt }) {
                 </Tabs>
               </div>
             </div>
-
           </div>
-
-        </div >
-      )
-      }
+        </div>
+      )}
     </>
   );
 }
