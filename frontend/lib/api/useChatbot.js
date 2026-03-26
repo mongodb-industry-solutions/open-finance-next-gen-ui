@@ -59,9 +59,6 @@ export function useChatbot() {
       const { type, _broadcastId, response, suggestions: broadcastSuggestions, consentId, institution, bearerToken } = event.data;
 
       if (type === "consent_complete") {
-        console.log("[chatbot] received consent_complete, broadcastId:", _broadcastId, "has response:", !!response);
-        console.trace("[chatbot] consent_complete stack");
-
         // These run in every instance (UI state, context updates)
         setWaitingForBankLogin(false);
         setSending(false);
@@ -70,6 +67,7 @@ export function useChatbot() {
         if (consentId) addConsent(consentId, "authorized", institution);
 
         // Only one instance adds the message to avoid duplicates
+        // Only one instance adds the message (StrictMode creates two listeners in dev)
         if (_broadcastId && _seenBroadcastIds.has(_broadcastId)) return;
         if (_broadcastId) _seenBroadcastIds.add(_broadcastId);
 

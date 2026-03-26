@@ -176,11 +176,9 @@ export function useBankLogin({ consentId, institutionName, threadId }) {
       // Send completion to the original tab's chatbot via BroadcastChannel
       const channel = new BroadcastChannel("leafy-bank-consent");
       if (approved && consentData?.consent_id) {
-        const _broadcastId = crypto.randomUUID();
-        console.log("[bank-login] broadcasting consent_complete, id:", _broadcastId);
         channel.postMessage({
           type: "consent_complete",
-          _broadcastId,
+          _broadcastId: crypto.randomUUID(),
           response: finalResponse,
           suggestions: finalSuggestions,
           consentId: consentData.consent_id,
