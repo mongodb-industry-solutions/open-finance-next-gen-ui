@@ -164,10 +164,6 @@ export default function LeafyBankAssistant({ isOpen, onClose, initialPrompt }) {
       handleSend(initialPrompt);
       hasSentPromptRef.current = true;
     }
-
-    if (!isOpen) {
-      hasSentPromptRef.current = false; // reset when modal closes
-    }
   }, [isOpen, initialPrompt]);
 
   return (
