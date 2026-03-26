@@ -7,6 +7,9 @@ import { marked } from "marked";
 
 marked.setOptions({ breaks: true, gfm: true });
 
+// Module-level dedup: shared across all useChatbot instances
+const _seenBroadcastIds = new Set();
+
 const WELCOME_MESSAGE =
   "Hi there! I'm your Open Finance assistant. I can help you connect bank accounts, view transactions, and analyze your financial data. How can I help you today?";
 
@@ -46,15 +49,30 @@ export function useChatbot() {
   // Using a ref avoids closure staleness in processSSEStream (memoized with []).
   const pendingDetailsRef = useRef([]);
 
+  // Dedup uses module-level _seenBroadcastIds (shared across hook instances)
+
   // --- BroadcastChannel: listen for consent completion from bank-login tab ---
   useEffect(() => {
     const channel = new BroadcastChannel("leafy-bank-consent");
 
     channel.onmessage = (event) => {
-      const { type, response, suggestions: broadcastSuggestions, consentId, institution, bearerToken } = event.data;
+      const { type, _broadcastId, response, suggestions: broadcastSuggestions, consentId, institution, bearerToken } = event.data;
 
       if (type === "consent_complete") {
-        // Add the final AI response to chat messages
+        console.log("[chatbot] received consent_complete, broadcastId:", _broadcastId, "has response:", !!response);
+        console.trace("[chatbot] consent_complete stack");
+
+        // These run in every instance (UI state, context updates)
+        setWaitingForBankLogin(false);
+        setSending(false);
+        if (broadcastSuggestions?.length > 0) setSuggestions(broadcastSuggestions);
+        if (bearerToken) updateBearerToken(bearerToken);
+        if (consentId) addConsent(consentId, "authorized", institution);
+
+        // Only one instance adds the message to avoid duplicates
+        if (_broadcastId && _seenBroadcastIds.has(_broadcastId)) return;
+        if (_broadcastId) _seenBroadcastIds.add(_broadcastId);
+
         if (response) {
           setMessages((prev) => [
             ...(prev || []),
@@ -62,24 +80,6 @@ export function useChatbot() {
           ]);
         }
 
-        // Show suggestions forwarded from bank-login tab
-        if (broadcastSuggestions?.length > 0) {
-          setSuggestions(broadcastSuggestions);
-        }
-
-        // Update bearer token if provided
-        if (bearerToken) {
-          updateBearerToken(bearerToken);
-        }
-
-        // Bridge consent to dashboard
-        if (consentId) {
-          addConsent(consentId, "authorized", institution);
-        }
-
-        // Clear waiting state
-        setWaitingForBankLogin(false);
-        setSending(false);
       }
     };
 
