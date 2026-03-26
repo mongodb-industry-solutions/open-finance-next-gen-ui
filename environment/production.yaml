@@ -4,7 +4,7 @@
 env:
   NODE_ENV: production
   ## Backend service URLs (in-cluster DNS names from Kanopy)
-  CORE_BACKEND_URL: http://open-finance-next-gen-web-app:80
+  CORE_BACKEND_URL: http://open-finance-next-gen-prod-web-app:80
   CHATBOT_BACKEND_URL: http://openfinance-chatbot-web-app:80
 
 ## Uncomment and configure if you need Kubernetes secrets injected as env vars
