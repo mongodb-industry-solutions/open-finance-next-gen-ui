@@ -21,3 +21,46 @@ export function formatDate(dateStr) {
   if (!dateStr) return "";
   return new Date(dateStr).toLocaleDateString();
 }
+
+/**
+ * Map ISO 20022 Purpose codes to display categories.
+ * Used to categorize external transactions for the transaction table.
+ */
+const PURPOSE_CODE_CATEGORIES = {
+  GDDS: "Groceries",
+  SVCS: "Utilities",
+  TRPT: "Travel",
+  SUBB: "Entertainment",
+  OTHR: "Other",
+  HLTH: "Healthcare",
+  EDUC: "Other",
+  RENT: "Utilities",
+  INSUR: "Other",
+};
+
+/**
+ * Map ISO 20022 BkTxCd subfamily to display categories.
+ * Fallback when Purpose code is absent.
+ */
+const TX_CODE_CATEGORIES = {
+  POSD: "Restaurants",
+  OTHR: "Other",
+  STDO: "Utilities",
+  FEES: "Other",
+};
+
+/**
+ * Derive a display category from an external (ISO 20022) transaction.
+ * Priority: Purpose code → Transaction subfamily → "Other".
+ */
+export function externalTxCategory(tx) {
+  const purposeCode = tx.Purp?.Cd;
+  if (purposeCode && PURPOSE_CODE_CATEGORIES[purposeCode]) {
+    return PURPOSE_CODE_CATEGORIES[purposeCode];
+  }
+  const subFamily = tx.BkTxCd?.SubFmly;
+  if (subFamily && TX_CODE_CATEGORIES[subFamily]) {
+    return TX_CODE_CATEGORIES[subFamily];
+  }
+  return "Other";
+}

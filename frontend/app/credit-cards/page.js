@@ -194,7 +194,7 @@ export default function CreditCardsPage() {
                       <tr className={styles.expandedRow}>
                         <td colSpan={6}>
                           <div className={styles.expandedContent}>
-                            <Code language="json">{JSON.stringify(t, null, 2)}</Code>
+                            <Code language="json">{JSON.stringify(t._rawDocument || t, null, 2)}</Code>
                           </div>
                         </td>
                       </tr>
