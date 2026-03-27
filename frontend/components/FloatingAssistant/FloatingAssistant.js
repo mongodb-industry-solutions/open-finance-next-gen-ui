@@ -1,11 +1,13 @@
 "use client";
 
+import { useUser } from "@/lib/context/UserContext";
 import { Body } from "@leafygreen-ui/typography";
 import { useEffect, useState } from "react";
 import LeafyBankAssistant from "../LeafyBankAssistant/LeafyBankAssistant";
 import styles from "./FloatingAssistant.module.css";
 
 export default function FloatingAssistant() {
+  const { selectedUser } = useUser();
   const [modalOpen, setModalOpen] = useState(false);
   const [showBubble, setShowBubble] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
@@ -22,6 +24,8 @@ export default function FloatingAssistant() {
 
     return () => clearTimeout(timer);
   }, []);
+
+  if (!selectedUser) return null;
 
   return (
     <>

@@ -47,13 +47,20 @@ function StepDetailItem({ detail }) {
           <>
             <code>{detail.tool}()</code>
             {detail.mongodbFeature && (
-              <span style={{ marginLeft: 8, fontSize: "0.8em", opacity: 0.7 }}>
-                · {detail.mongodbFeature}
+              <span className={styles.mongodbFeature}>
+                {detail.mongodbFeature}
               </span>
             )}
           </>
         ) : (
-          <span>{detail.message}</span>
+          <>
+            <span>{detail.message}</span>
+            {detail.mongodbFeature && (
+              <span className={styles.mongodbFeature}>
+                {detail.mongodbFeature}
+              </span>
+            )}
+          </>
         )}
         {hasIO && (
           <span className={styles.expandToggle}>{expanded ? "▾" : "▸"}</span>
@@ -198,6 +205,12 @@ export default function LeafyBankAssistant({ isOpen, onClose, initialPrompt }) {
                     Thread: {threadId.substring(0, 8)}...
                   </span>
                 )}
+              </div>
+
+              <div className={styles.encryptionBanner}>
+                <span className={styles.encryptionIcon}>🔒</span>
+                Agent behavior protected by{" "}
+                <strong>Queryable Encryption</strong>
               </div>
 
               <div className={styles.tabsWrapper}>

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
-import { chatStream } from "./client";
 import { useUser } from "@/lib/context/UserContext";
 import { marked } from "marked";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { chatStream } from "./client";
 
 marked.setOptions({ breaks: true, gfm: true });
 
@@ -32,7 +32,9 @@ export function useChatbot() {
   const [suggestions, setSuggestions] = useState(null);
 
   // Derive messages from context, falling back to welcome message for fresh sessions
-  const messages = chatMessages || [{ type: "assistant", text: WELCOME_MESSAGE }];
+  const messages = chatMessages || [
+    { type: "assistant", text: WELCOME_MESSAGE },
+  ];
   const setMessages = setChatMessages;
   const threadId = chatThreadId;
   const setThreadId = setChatThreadId;
@@ -56,13 +58,22 @@ export function useChatbot() {
     const channel = new BroadcastChannel("leafy-bank-consent");
 
     channel.onmessage = (event) => {
-      const { type, _broadcastId, response, suggestions: broadcastSuggestions, consentId, institution, bearerToken } = event.data;
+      const {
+        type,
+        _broadcastId,
+        response,
+        suggestions: broadcastSuggestions,
+        consentId,
+        institution,
+        bearerToken,
+      } = event.data;
 
       if (type === "consent_complete") {
         // These run in every instance (UI state, context updates)
         setWaitingForBankLogin(false);
         setSending(false);
-        if (broadcastSuggestions?.length > 0) setSuggestions(broadcastSuggestions);
+        if (broadcastSuggestions?.length > 0)
+          setSuggestions(broadcastSuggestions);
         if (bearerToken) updateBearerToken(bearerToken);
         if (consentId) addConsent(consentId, "authorized", institution);
 
@@ -77,12 +88,11 @@ export function useChatbot() {
             { type: "assistant", text: response },
           ]);
         }
-
       }
     };
 
     return () => channel.close();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // --- Helpers ---
@@ -141,7 +151,7 @@ export function useChatbot() {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [],
   );
 
   function handleSSEEvent(event) {
@@ -170,7 +180,9 @@ export function useChatbot() {
           status: "pending",
         };
         pendingDetailsRef.current = [...pendingDetailsRef.current, detail];
-        const agentPrefix1 = payload.agent_display ? `${payload.agent_display}: ` : "";
+        const agentPrefix1 = payload.agent_display
+          ? `${payload.agent_display}: `
+          : "";
         setStepIndicator({
           text: `${agentPrefix1}Calling ${payload.tool}()...`,
           details: [...pendingDetailsRef.current],
@@ -182,9 +194,11 @@ export function useChatbot() {
         pendingDetailsRef.current = pendingDetailsRef.current.map((d) =>
           d.kind === "tool" && d.tool === payload.tool && d.status === "pending"
             ? { ...d, status: "done", summary: payload.summary }
-            : d
+            : d,
         );
-        const agentPrefix2 = payload.agent_display ? `${payload.agent_display}: ` : "";
+        const agentPrefix2 = payload.agent_display
+          ? `${payload.agent_display}: `
+          : "";
         setStepIndicator((prev) => ({
           ...prev,
           text: `${agentPrefix2}${payload.tool}() completed`,
@@ -202,6 +216,7 @@ export function useChatbot() {
             step: payload.step,
             message: payload.message,
             input: payload.input,
+            mongodbFeature: payload.mongodb_feature || null,
             status: "pending",
           };
           pendingDetailsRef.current = [...pendingDetailsRef.current, detail];
@@ -212,9 +227,11 @@ export function useChatbot() {
           }));
         } else if (payload.output && payload.step) {
           pendingDetailsRef.current = pendingDetailsRef.current.map((d) =>
-            d.kind === "progress" && d.step === payload.step && d.status === "pending"
+            d.kind === "progress" &&
+            d.step === payload.step &&
+            d.status === "pending"
               ? { ...d, status: "done", output: payload.output }
-              : d
+              : d,
           );
           setStepIndicator((prev) => ({
             ...prev,
@@ -226,7 +243,12 @@ export function useChatbot() {
 
       case "agent_complete":
         setStepIndicator((prev) =>
-          prev ? { ...prev, text: `${payload.agent_display || payload.agent} finished` } : null
+          prev
+            ? {
+                ...prev,
+                text: `${payload.agent_display || payload.agent} finished`,
+              }
+            : null,
         );
         break;
 
@@ -287,7 +309,10 @@ export function useChatbot() {
     if (!text || sending) return;
     if (!selectedUser?.name) return;
 
-    setMessages((prev) => [...(prev || [{ type: "assistant", text: WELCOME_MESSAGE }]), { type: "user", text }]);
+    setMessages((prev) => [
+      ...(prev || [{ type: "assistant", text: WELCOME_MESSAGE }]),
+      { type: "user", text },
+    ]);
     setInputValue("");
     setSuggestions(null);
     pendingDetailsRef.current = [];
@@ -354,7 +379,7 @@ export function useChatbot() {
         addConsent(
           interruptData.consent_id,
           "authorized",
-          interruptData.source_institution
+          interruptData.source_institution,
         );
       }
     } catch (e) {
@@ -380,11 +405,11 @@ export function useChatbot() {
 
   // --- Markdown rendering ---
 
- function renderMarkdown(text) {
-  // If text is an array, join it with two line breaks (for paragraphs)
-  const markdown = Array.isArray(text) ? text.join("\n\n") : text;
-  return { __html: marked.parse(markdown) };
-}
+  function renderMarkdown(text) {
+    // If text is an array, join it with two line breaks (for paragraphs)
+    const markdown = Array.isArray(text) ? text.join("\n\n") : text;
+    return { __html: marked.parse(markdown) };
+  }
 
   return {
     // State
