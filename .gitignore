@@ -12,10 +12,6 @@ SECURITY_CHECK_README.md
 .drone-multicontainer-pods.yml
 .drone-seperate-pods.yml
 
-# claude
-**/.claude
-CLAUDE.md
-
 # task-def.json
 **/task-def.json
 
