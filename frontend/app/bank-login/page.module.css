@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: #001E2B;
+  background: #001e2b;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -14,11 +14,15 @@
 
 .card {
   max-width: 90vh;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
   width: 100%;
   padding: 32px;
   background: white;
   border-radius: 12px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .header {
@@ -110,6 +114,64 @@
   color: #92400e;
 }
 
+.consentSection {
+  margin-bottom: 16px;
+}
+
+.consentSectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.consentSectionIcon {
+  font-size: 16px;
+}
+
+.consentSectionValue {
+  padding-left: 24px;
+  color: #78350f;
+}
+
+.permissionList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 24px;
+}
+
+.permissionRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: #fef9c3;
+  border-radius: 6px;
+}
+
+.permissionIcon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.permissionLabel {
+  flex: 1;
+  font-size: 14px;
+  color: #78350f;
+}
+
+.permissionBadge {
+  font-size: 11px;
+  font-weight: 600;
+  color: #15803d;
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
 /* PLACEHOLDER — data team added encryption proof section.
    Colleague to restyle to match design system. */
 .encryptionProof {
@@ -131,7 +193,6 @@
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
-
 }
 
 .encryptionTable th,
@@ -149,7 +210,8 @@
   font-weight: 500;
 }
 
-.encryptionLoading {}
+.encryptionLoading {
+}
 
 /* PLACEHOLDER — data team added action buttons layout.
    Colleague to restyle to match design system. */
