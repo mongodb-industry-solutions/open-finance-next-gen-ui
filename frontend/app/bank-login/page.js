@@ -242,14 +242,16 @@ function BankLoginContent() {
                 </div>
               )}
 
-              {consentData.expiration && (
+              {(consentData.display_expiration || consentData.expiration) && (
                 <div className={styles.consentSection}>
                   <div className={styles.consentSectionHeader}>
                     <span className={styles.consentSectionIcon}>⏱️</span>
                     <Body weight="medium">Expires</Body>
                   </div>
                   <Body className={styles.consentSectionValue}>
-                    {friendlyDate(consentData.expiration)}
+                    {friendlyDate(
+                      consentData.display_expiration || consentData.expiration,
+                    )}
                   </Body>
                 </div>
               )}

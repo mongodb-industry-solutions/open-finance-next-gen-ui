@@ -338,9 +338,12 @@ export default function LeafyBankAssistant({ isOpen, onClose, initialPrompt }) {
                                 {interrupt.source_institution}
                               </div>
                             )}
-                            {interrupt.expiration && (
+                            {(interrupt.display_expiration ||
+                              interrupt.expiration) && (
                               <div className={styles.interruptDetails}>
-                                <strong>Expires:</strong> {interrupt.expiration}
+                                <strong>Expires:</strong>{" "}
+                                {interrupt.display_expiration ||
+                                  interrupt.expiration}
                               </div>
                             )}
                             <div className={styles.interruptActions}>
