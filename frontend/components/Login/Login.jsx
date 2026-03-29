@@ -55,7 +55,12 @@ const Login = ({ onDone }) => {
                 <div className={styles.modalMainContent}>
                     <H2 className={styles.centerText}>Welcome to Leafy Bank</H2>
                     <Subtitle className={`${styles.weightNormal} ${styles.centerText} mt-2`}>This is a MongoDB demo</Subtitle>
-                    <br />
+                  
+
+                    <Banner variant="warning" className={styles.warningBanner}>
+                        Please make sure pop-ups are enabled in your browser to ensure the demo runs smoothly and all features display correctly.
+                    </Banner>
+
                     <Description className={styles.descriptionModal}>
                         Please select the user you would like to login as:
                     </Description>
