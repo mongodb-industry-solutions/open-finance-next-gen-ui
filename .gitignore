@@ -1,5 +1,6 @@
 # Kanopy
 knowledge_base_kanopy/
+.augment/
 
 # Security checks
 security_check.sh
@@ -10,9 +11,6 @@ SECURITY_CHECK_README.md
 ./KANOPY_DEPLOYMENT_README.md
 .drone-multicontainer-pods.yml
 .drone-seperate-pods.yml
-
-# claude
-**/.claude
 
 # task-def.json
 **/task-def.json
@@ -234,3 +232,9 @@ frontend/next-env.d.ts
 
 # Misc
 *.pem
+_state.md
+setup-hooks.sh
+.gitignore
+
+# Node modules
+node_modules/

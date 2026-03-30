@@ -1,0 +1,179 @@
+---
+kind: pipeline
+type: kubernetes
+name: validate-pr
+
+trigger:
+  event:
+    - pull_request
+  branch:
+    - staging
+    - main
+
+steps:
+  - name: secret-scan
+    image: zricethezav/gitleaks:latest
+    commands:
+      - gitleaks detect --source . --verbose
+    when:
+      event:
+        - pull_request
+
+  - name: dependency-scan
+    image: ghcr.io/aquasecurity/trivy:0.69.3
+    commands:
+      - trivy fs --severity CRITICAL --exit-code 1 .
+    when:
+      event:
+        - pull_request
+
+  - name: lint
+    image: node:22-alpine
+    commands:
+      - cd frontend && npm install && npx eslint .
+    when:
+      event:
+        - pull_request
+
+  - name: build-check
+    image: plugins/kaniko-ecr
+    settings:
+      no_push: true
+      registry: 795250896452.dkr.ecr.us-east-1.amazonaws.com
+      repo: industrysolutions/open-finance-nextgen-ui
+      dockerfile: Dockerfile.frontend
+    when:
+      event:
+        - pull_request
+
+  - name: helm-dry-run-staging
+    image: public.ecr.aws/kanopy/drone-helm:v3
+    settings:
+      dry_run: true
+      chart: mongodb/web-app
+      chart_version: 4.30.0
+      add_repos: [mongodb=https://10gen.github.io/helm-charts]
+      namespace: industrysolutions
+      release: open-finance-nextgen-ui
+      values:
+        - "image.tag=test"
+        - "image.repository=test"
+      api_server: https://api.staging.corp.mongodb.com
+      kubernetes_token:
+        from_secret: stag_kub_pr_token
+      values_files: ["environment/staging.yaml"]
+    when:
+      event:
+        - pull_request
+
+---
+kind: pipeline
+type: kubernetes
+name: staging
+
+trigger:
+  branch:
+    - staging
+  event:
+    - push
+
+steps:
+  - name: publish
+    image: plugins/kaniko-ecr
+    settings:
+      create_repository: true
+      registry: 795250896452.dkr.ecr.us-east-1.amazonaws.com
+      repo: industrysolutions/open-finance-nextgen-ui
+      tags:
+        - git-${DRONE_COMMIT_SHA:0:7}
+        - latest
+      dockerfile: Dockerfile.frontend
+      access_key:
+        from_secret: ecr_access_key
+      secret_key:
+        from_secret: ecr_secret_key
+    when:
+      event:
+        - push
+
+  - name: deploy-staging
+    image: public.ecr.aws/kanopy/drone-helm:v3
+    settings:
+      chart: mongodb/web-app
+      chart_version: 4.30.0
+      add_repos: [mongodb=https://10gen.github.io/helm-charts]
+      namespace: industrysolutions
+      release: open-finance-nextgen-ui
+      values:
+        - "image.tag=git-${DRONE_COMMIT_SHA:0:7}"
+        - "image.repository=795250896452.dkr.ecr.us-east-1.amazonaws.com/industrysolutions/open-finance-nextgen-ui"
+        - "ingress.enabled=true"
+        - "ingress.hosts[0]=open-finance-nextgen-ui.industrysolutions.staging.corp.mongodb.com"
+        - "mesh.enabled=true"
+        - "resources.limits.cpu=500m"
+        - "resources.limits.memory=512Mi"
+        - "resources.requests.cpu=100m"
+        - "resources.requests.memory=256Mi"
+      api_server: https://api.staging.corp.mongodb.com
+      kubernetes_token:
+        from_secret: staging_kubernetes_token
+      values_files: ["environment/staging.yaml"]
+    when:
+      event:
+        - push
+
+---
+kind: pipeline
+type: kubernetes
+name: production
+
+trigger:
+  branch:
+    - main
+  event:
+    - push
+
+steps:
+  - name: publish-prod
+    image: plugins/kaniko-ecr
+    settings:
+      create_repository: true
+      registry: 795250896452.dkr.ecr.us-east-1.amazonaws.com
+      repo: industrysolutions/open-finance-nextgen-ui-prod
+      tags:
+        - git-${DRONE_COMMIT_SHA:0:7}-prod
+        - prod-latest
+      dockerfile: Dockerfile.frontend
+      access_key:
+        from_secret: ecr_access_key
+      secret_key:
+        from_secret: ecr_secret_key
+    when:
+      event:
+        - push
+
+  - name: deploy-production
+    image: public.ecr.aws/kanopy/drone-helm:v3
+    settings:
+      chart: mongodb/web-app
+      chart_version: 4.30.0
+      add_repos: [mongodb=https://10gen.github.io/helm-charts]
+      namespace: industrysolutions
+      release: open-finance-nextgen-ui
+      values:
+        - "image.tag=git-${DRONE_COMMIT_SHA:0:7}-prod"
+        - "image.repository=795250896452.dkr.ecr.us-east-1.amazonaws.com/industrysolutions/open-finance-nextgen-ui-prod"
+        - "ingress.enabled=true"
+        - "ingress.hosts[0]=open-finance-nextgen-ui.industrysolutions.prod.corp.mongodb.com"
+        - "mesh.enabled=true"
+        - "resources.limits.cpu=500m"
+        - "resources.limits.memory=512Mi"
+        - "resources.requests.cpu=150m"
+        - "resources.requests.memory=256Mi"
+      api_server: https://api.prod.corp.mongodb.com
+      kubernetes_token:
+        from_secret: production_kubernetes_token
+      values_files: ["environment/production.yaml"]
+    when:
+      event:
+        - push

@@ -1,23 +1,57 @@
+# Open Finance Next Gen UI - Makefile
+# Frontend development commands (no Docker)
+
+FRONTEND_DIR := frontend
+
+.PHONY: help install dev start build lint clean restart kill fresh
+
+# Default target
+help:
+	@echo "Available commands:"
+	@echo "  make install   - Install dependencies"
+	@echo "  make dev       - Start development server (port 3000)"
+	@echo "  make start     - Start production server (requires build first)"
+	@echo "  make build     - Build for production"
+	@echo "  make lint      - Run ESLint"
+	@echo "  make clean     - Remove node_modules and .next"
+	@echo "  make restart   - Kill existing server and restart dev"
+	@echo "  make kill      - Kill process running on port 3000"
+	@echo "  make fresh     - Clean install and start dev"
+
+# Install dependencies
+install:
+	cd $(FRONTEND_DIR) && npm install
+
+# Start development server
+dev:
+	cd $(FRONTEND_DIR) && npm run dev
+
+# Start production server
+start:
+	cd $(FRONTEND_DIR) && npm run start
+
+# Build for production
 build:
-	docker-compose up --build -d
+	cd $(FRONTEND_DIR) && npm run build
 
-start: 
-	docker-compose start
+# Run linter
+lint:
+	cd $(FRONTEND_DIR) && npm run lint
 
-stop:
-	docker-compose stop
-
+# Clean build artifacts and dependencies
 clean:
-	docker-compose down --rmi all -v
+	rm -rf $(FRONTEND_DIR)/node_modules
+	rm -rf $(FRONTEND_DIR)/.next
+	@echo "Cleaned node_modules and .next"
 
-install_uv:
-	curl -LsSf https://astral.sh/uv/install.sh | sh
+# Kill process on port 3000
+kill:
+	@lsof -ti:3000 | xargs kill -9 2>/dev/null || echo "No process running on port 3000"
 
-uv_init:
-	cd backend && uv venv
+# Restart development server
+restart: kill
+	@sleep 1
+	cd $(FRONTEND_DIR) && npm run dev
 
-uv_sync:
-	cd backend && uv sync
-
-uv_update:
-	cd backend && uv lock --upgrade
+# Fresh install and start
+fresh: clean install dev
