@@ -3,6 +3,8 @@
 import { useChatbot } from "@/lib/api/useChatbot";
 import { TALK_TRACK } from "@/lib/const/talkTrack";
 import Button from "@leafygreen-ui/button";
+import Icon from "@leafygreen-ui/icon";
+
 import { Tab, Tabs } from "@leafygreen-ui/tabs";
 import { Body, H2 } from "@leafygreen-ui/typography";
 import { useEffect, useRef, useState } from "react";
@@ -17,6 +19,7 @@ const SUGGESTIONS = [
   "I want financial advice",
 ];
 
+
 /**
  * Renders a single step detail item (tool call or progress sub-step).
  * Used by both active step indicator and finalized "steps" messages.
@@ -29,13 +32,28 @@ function StepDetailItem({ detail }) {
         detail.summary)) ||
     (detail.kind === "progress" && (detail.input || detail.output));
 
+    const hasMongoFeature = !!detail.mongodbFeature;
+
+
   return (
     <div className={styles.stepDetail}>
+      {hasMongoFeature && (
+
+        <div className={styles.featureHint}>
+          <Icon glyph="InfoWithCircle" size="small" />
+          <Body className={styles.featureHintText}>
+            Take a look at the MongoDB features used to retrieve this answer — click on
+            the feature names to explore how each step works.
+          </Body>
+        </div>
+      )}
+
       <div
         className={styles.stepDetailHeader}
         onClick={hasIO ? () => setExpanded((v) => !v) : undefined}
         style={hasIO ? { cursor: "pointer" } : undefined}
       >
+
         <span
           className={
             detail.status === "done" ? styles.iconDone : styles.iconPending
@@ -45,7 +63,9 @@ function StepDetailItem({ detail }) {
         </span>
         {detail.kind === "tool" ? (
           <>
+
             <code>{detail.tool}()</code>
+
             {detail.mongodbFeature && (
               <span className={styles.mongodbFeature}>
                 {detail.mongodbFeature}
@@ -239,13 +259,12 @@ export default function LeafyBankAssistant({ isOpen, onClose, initialPrompt }) {
                           return (
                             <div
                               key={i}
-                              className={`${styles.message} ${
-                                msg.type === "user"
-                                  ? styles.userMessage
-                                  : msg.type === "error"
-                                    ? styles.errorMessage
-                                    : styles.assistantMessage
-                              }`}
+                              className={`${styles.message} ${msg.type === "user"
+                                ? styles.userMessage
+                                : msg.type === "error"
+                                  ? styles.errorMessage
+                                  : styles.assistantMessage
+                                }`}
                             >
                               {msg.type === "assistant" ? (
                                 <div
