@@ -6,7 +6,7 @@ import Button from "@leafygreen-ui/button";
 import Icon from "@leafygreen-ui/icon";
 
 import { Tab, Tabs } from "@leafygreen-ui/tabs";
-import { Body, H2 } from "@leafygreen-ui/typography";
+import { Body, H2, H3 } from "@leafygreen-ui/typography";
 import { useEffect, useRef, useState } from "react";
 
 import styles from "./LeafyBankAssistant.module.css";
@@ -422,9 +422,9 @@ export default function LeafyBankAssistant({ isOpen, onClose, initialPrompt }) {
                         {tab.content.map((item, i) => (
                           <div key={i} className={styles.tabSection}>
                             {item.heading && (
-                              <H2 className={styles.tabSectionHeading}>
+                              <H3 className={styles.tabSectionHeading}>
                                 {item.heading}
-                              </H2>
+                              </H3>
                             )}
 
                             {item.body && (
