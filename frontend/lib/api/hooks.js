@@ -310,7 +310,7 @@ export function useExternalTransactions() {
 // See .claude/memory/coding-patterns.md for the full pattern.
 // ────────────────────────────────────────────────────────────
 
-import { formatDate, externalTxCategory } from "./format";
+import { formatDate, txCategory } from "./format";
 
 /**
  * Composed hook for the Home page.
@@ -386,21 +386,18 @@ export function useAccountsPageData() {
   const allAccounts = [...bankAccounts, ...extCards];
 
   const internalTxns = transactions.map((t) => ({
-    category: t.TransactionMerchant?.MerchantCategory || "\u2014",
-    establishment:
-      t.TransactionMerchant?.MerchantName ||
-      t.TransactionDescription ||
-      "\u2014",
-    date: formatDate(t.TransactionDates?.[0]?.TransactionDate),
-    amount: t.TransactionAmount || 0,
-    type: t.TransactionCreditDebitType,
+    category: txCategory(t),
+    establishment: t.Cdtr?.Nm || t.AddtlNtryInf || "\u2014",
+    date: formatDate(t.BookgDt),
+    amount: t.Amt?.value || 0,
+    type: t.CdtDbtInd === "CRDT" ? "Credit" : "Debit",
     _isExternal: false,
-    _rawDate: t.TransactionDates?.[0]?.TransactionDate || "",
+    _rawDate: t.BookgDt || "",
     _rawDocument: t,
   }));
 
   const externalTxns = externalTransactions.map((t) => ({
-    category: externalTxCategory(t),
+    category: txCategory(t),
     establishment: t.Cdtr?.Nm || t.AddtlNtryInf || "\u2014",
     date: formatDate(t.BookgDt),
     amount: t.Amt?.value || 0,
@@ -444,7 +441,11 @@ export function useCreditCardsPageData() {
     }));
 
   const externalCards = externalAccounts
-    .filter((a) => (a.AccountType || "").toUpperCase() === "CREDITCARD" || (a.Acct?.Tp || "") === "CARD")
+    .filter(
+      (a) =>
+        (a.AccountType || "").toUpperCase() === "CREDITCARD" ||
+        (a.Acct?.Tp || "") === "CARD",
+    )
     .map((a) => ({
       title: `Credit Card (${a._sourceInstitution || "External"})`,
       number: a.AccountNumber || a.Acct?.Id || "",
@@ -454,21 +455,14 @@ export function useCreditCardsPageData() {
   const creditCards = [...internalCards, ...externalCards];
 
   const internalCardTxns = transactions
-    .filter(
-      (t) =>
-        t.TransactionReferenceData?.TransactionSender?.AccountType ===
-        "CreditCard",
-    )
+    .filter((t) => t.Acct?.Tp === "CARD")
     .map((t) => ({
-      category: t.TransactionMerchant?.MerchantCategory || "\u2014",
-      establishment:
-        t.TransactionMerchant?.MerchantName ||
-        t.TransactionDescription ||
-        "\u2014",
-      date: formatDate(t.TransactionDates?.[0]?.TransactionDate),
-      amount: t.TransactionAmount || 0,
+      category: txCategory(t),
+      establishment: t.Cdtr?.Nm || t.AddtlNtryInf || "\u2014",
+      date: formatDate(t.BookgDt),
+      amount: t.Amt?.value || 0,
       _isExternal: false,
-      _rawDate: t.TransactionDates?.[0]?.TransactionDate || "",
+      _rawDate: t.BookgDt || "",
       _rawDocument: t,
     }));
 
@@ -476,7 +470,7 @@ export function useCreditCardsPageData() {
   const externalCardTxns = externalTransactions
     .filter((t) => t.BkTxCd?.Fmly === "MCRD")
     .map((t) => ({
-      category: externalTxCategory(t),
+      category: txCategory(t),
       establishment: t.Cdtr?.Nm || t.AddtlNtryInf || "\u2014",
       date: formatDate(t.BookgDt),
       amount: t.Amt?.value || 0,
@@ -490,7 +484,12 @@ export function useCreditCardsPageData() {
     .sort((a, b) => new Date(b._rawDate) - new Date(a._rawDate))
     .slice(0, 20);
 
-  return { creditCards, cardTxns, accountsLoading, txLoading: txLoading || extTxLoading };
+  return {
+    creditCards,
+    cardTxns,
+    accountsLoading,
+    txLoading: txLoading || extTxLoading,
+  };
 }
 
 /**

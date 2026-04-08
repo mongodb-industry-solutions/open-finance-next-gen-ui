@@ -50,10 +50,11 @@ const TX_CODE_CATEGORIES = {
 };
 
 /**
- * Derive a display category from an external (ISO 20022) transaction.
+ * Derive a display category from an ISO 20022 transaction.
+ * Works for both internal (Leafy Bank) and external bank transactions.
  * Priority: Purpose code → Transaction subfamily → "Other".
  */
-export function externalTxCategory(tx) {
+export function txCategory(tx) {
   const purposeCode = tx.Purp?.Cd;
   if (purposeCode && PURPOSE_CODE_CATEGORIES[purposeCode]) {
     return PURPOSE_CODE_CATEGORIES[purposeCode];
