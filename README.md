@@ -2,6 +2,14 @@
 
 Demonstrates how MongoDB Atlas powers a modern Open Finance banking interface — multi-bank account aggregation, AI-assisted consent management, real-time streaming chat, and MongoDB Queryable Encryption visualization, all built with Next.js 15 and MongoDB's LeafyGreen design system.
 
+> **This is one of three interconnected repositories that make up the Leafy Bank Open Finance solution:**
+>
+> | Repository | Description | Port |
+> |------------|-------------|------|
+> | [open-finance-next-gen](https://github.com/mongodb-industry-solutions/open-finance-next-gen) | FastAPI backend — consents, accounts, transactions, Queryable Encryption | 8003 |
+> | [leafy-bank-backend-openfinance-reactagent-chatbot](https://github.com/mongodb-industry-solutions/leafy-bank-backend-openfinance-reactagent-chatbot) | LangGraph multi-agent chatbot — consent flows, portability analysis, financial advice | 8080 |
+> | **open-finance-next-gen-ui** (this repo) | Next.js 15 frontend — dashboard, multi-bank views, AI assistant | 3000 |
+
 ## Where MongoDB Shines
 
 - **Multi-Bank Account Aggregation**: The dashboard merges internal Leafy Bank accounts with external bank data (fetched via consent) into a unified view. MongoDB's flexible document model handles heterogeneous account structures from different institutions without schema conflicts.
@@ -11,13 +19,7 @@ Demonstrates how MongoDB Atlas powers a modern Open Finance banking interface �
 
 ## High-Level Architecture
 
-<!-- TODO: Add architecture diagram -->
-
-![Architecture Diagram](placeholder-architecture-diagram.png)
-
-```text
-add-description-later
-```
+![Architecture Diagram](architecture-diagram.png)
 
 ## Tech Stack
 
