@@ -88,6 +88,22 @@ export function useChatbot() {
             { type: "assistant", text: response },
           ]);
         }
+      } else if (type === "consent_declined") {
+        // User declined consent in the bank-login tab — unblock the chatbot
+        setWaitingForBankLogin(false);
+        setSending(false);
+
+        if (_broadcastId && _seenBroadcastIds.has(_broadcastId)) return;
+        if (_broadcastId) _seenBroadcastIds.add(_broadcastId);
+
+        if (response) {
+          setMessages((prev) => [
+            ...(prev || []),
+            { type: "assistant", text: response },
+          ]);
+        }
+        if (broadcastSuggestions?.length > 0)
+          setSuggestions(broadcastSuggestions);
       }
     };
 

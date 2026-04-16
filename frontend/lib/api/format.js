@@ -19,7 +19,8 @@ export function formatCurrency(amount) {
  */
 export function formatDate(dateStr) {
   if (!dateStr) return "";
-  return new Date(dateStr).toLocaleDateString();
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? "" : d.toLocaleDateString();
 }
 
 /**
