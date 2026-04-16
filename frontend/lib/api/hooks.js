@@ -15,7 +15,10 @@ export function useAccounts() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!selectedUser?.name) return;
+    if (!selectedUser?.name) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
 
     coreApi("leafybank/accounts/secure/fetch-accounts-for-user", {
@@ -43,7 +46,10 @@ export function useTransactions() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!selectedUser?.name) return;
+    if (!selectedUser?.name) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
 
     const profileParam = profile ? `?profile=${profile}` : "";
@@ -69,7 +75,10 @@ export function useCreditScore() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!selectedUser?.name) return;
+    if (!selectedUser?.name) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
 
     coreApi(`leafybank/customers/${selectedUser.name}/credit-score`).then(
