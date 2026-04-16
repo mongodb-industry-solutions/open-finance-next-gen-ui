@@ -185,10 +185,12 @@ export default function LeafyBankAssistant({ isOpen, onClose, initialPrompt }) {
   //Initial prompt handling (for contextual entry points)
 
   const hasSentPromptRef = useRef(false);
+  const handleSendRef = useRef(handleSend);
+  handleSendRef.current = handleSend;
 
   useEffect(() => {
     if (isOpen && initialPrompt && !hasSentPromptRef.current) {
-      handleSend(initialPrompt);
+      handleSendRef.current(initialPrompt);
       hasSentPromptRef.current = true;
     }
   }, [isOpen, initialPrompt]);
