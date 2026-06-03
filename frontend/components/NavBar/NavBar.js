@@ -90,6 +90,7 @@ const NavBarContent = () => {
                         </span>
                     ))}
 
+{/*}
                         <div className={styles.profileContainer}>
                         <label className={styles.profileLabel}>Spending Profile</label>
                         <select
@@ -101,7 +102,7 @@ const NavBarContent = () => {
                             <option value="overspender">Overspender</option>
                             <option value="saver">Saver</option>
                         </select>
-                    </div>
+                    </div>*/}
 
                     <div className={styles.userInfoContainer} onClick={() => setShowUserModal(true)}>
                         {selectedUser?.id && (

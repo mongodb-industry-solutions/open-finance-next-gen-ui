@@ -11,6 +11,7 @@ import Code from "@leafygreen-ui/code";
 import TransactionsTable from "@/components/TransactionsTable/TransactionsTable";
 import OverlapCards from "../../components/OverlapCards/OverlapCards";
 import LeafyBankAssistant from "../../components/LeafyBankAssistant/LeafyBankAssistant";
+import MobileActions from "@/components/MobileActions/MobileActions";
 import { useCreditCardsPageData } from "@/lib/api/hooks";
 import { useUser } from "@/lib/context/UserContext";
 
@@ -129,6 +130,9 @@ export default function CreditCardsPage() {
       </section>
 
       <LeafyBankAssistant isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+
+      {/* Mobile-only bottom navigation + its action modals. */}
+      <MobileActions />
     </main>
   );
 }

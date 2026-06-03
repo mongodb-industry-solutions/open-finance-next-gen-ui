@@ -16,19 +16,19 @@
 }
 
 .bottomSection {
-  height: 45vh;
+  height: 55vh;
   padding: 16px 24px;
   display: flex;
   flex-direction: column;
-   width: 100%;
+  width: 100%;
 }
 
-.activitySection{
+.activitySection {
   display: flex;
   flex-direction: column;
   gap: 12px;
   padding: 12px 24px;
-  margin-top: 20px;
+  
 }
 
 .tableWrap {
@@ -155,8 +155,16 @@
   width: 100%;
 }
 
+/* Global Position row: two equal cards spanning the full width. */
+.gpRow {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
 .cardProduct {
- flex: 1 1 0;
+  flex: 1 1 0;
   min-width: 0;
   display: flex;
 
@@ -253,6 +261,11 @@
   min-width: 0;
 }
 
+.accountBankBadge {
+  align-self: flex-start;
+  margin-top: 6px;
+}
+
 .accountAmount {
   margin-left: auto;
   text-align: right;
@@ -326,6 +339,25 @@
     scroll-snap-align: start;
   }
 
+  .rowTwo .cardEqual .leafyCard {
+    max-width: 360px;
+    height: 120px;
+  }
+
+  /* Global Position: stack the two cards full-width on mobile (no scroll). */
+  .gpRow {
+    grid-template-columns: 1fr;
+  }
+
+  .gpRow .card {
+    min-width: 0;
+  }
+
+  /* gpRow stacks rather than scrolls, so its paging dots don't apply. */
+  .topSection .sectionDots {
+    display: none;
+  }
+
   .sectionDots {
     display: flex;
   }
@@ -339,13 +371,19 @@
   .container {
     min-height: auto;
   }
+
+  /* On mobile the bottom navigation replaces the floating action buttons. */
+  .stickyButtonContainer {
+    display: none;
+  }
+
+  /* Leave room so page content isn't hidden behind the fixed bottom nav. */
+  .container {
+    padding-bottom: 72px;
+  }
 }
 
-/* Hover / focus effects for product cards in the bottom section */
-.rowThreeEqual .leafyCard {
-  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
-}
-
+/* Global Position (top section) cards are static — no hover lift. */
 .topSection .leafyCard:hover,
 .topSection .leafyCard:focus-within,
 .topSection .leafyCard:focus {
@@ -353,24 +391,6 @@
   box-shadow: 0 4px 7px rgba(16, 24, 40, 0.08);
   border-color: #E8EDEB;
   cursor: default;
-}
-
-.rowThreeEqual .leafyCard:hover,
-.rowThreeEqual .leafyCard:focus-within,
-.rowThreeEqual .leafyCard:focus {
-  transform: translateY(-6px);
-  box-shadow: 0 10px 20px rgba(16, 24, 40, 0.12);
-  border-color: rgba(16, 24, 40, 0.08);
-  cursor: pointer;
-}
-
-.rowThreeEqual .leafyCard:active {
-  transform: translateY(-2px);
-}
-
-.rowThreeEqual .leafyCard:focus-visible {
-  outline: 3px solid rgba(59, 130, 246, 0.18);
-  outline-offset: 4px;
 }
 
 /* Same hover/focus styles for the middle-section card (Add other financial entities) */
