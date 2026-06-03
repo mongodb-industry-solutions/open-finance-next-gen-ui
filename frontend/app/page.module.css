@@ -6,7 +6,7 @@
 
 /* Section heights relative to viewport - fits the requested 40/20/40 split */
 .topSection {
-  height: 40vh;
+  height: 20vh;
   padding: 16px 24px;
 }
 
@@ -16,11 +16,60 @@
 }
 
 .bottomSection {
-  height: 40vh;
+  height: 45vh;
   padding: 16px 24px;
   display: flex;
   flex-direction: column;
    width: 100%;
+}
+
+.activitySection{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 24px;
+  margin-top: 20px;
+}
+
+.tableWrap {
+  overflow: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 12px 8px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  text-align: left;
+}
+
+.table thead th {
+  font-weight: 600;
+}
+
+.table thead .th,
+.table thead th,
+.th {
+  text-transform: uppercase;
+  color: #6b7280;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+.categoryCircleCell {
+  width: 50px;
+  text-align: center;
+}
+
+.categoryCircle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
 }
 
 /* Row with three cards where middle is larger */
@@ -54,11 +103,15 @@
 
 .cardEqual {
   flex: 1 1 50%;
+  min-width: 0;
 }
 
-.cardEqual .leafyCard {
+.rowTwo .cardEqual .leafyCard {
   animation: pulseGlow 2s infinite;
+}
 
+.rowThreeEqual .leafyCard {
+  animation: none;
 }
 
 @keyframes pulseGlow {
@@ -80,9 +133,24 @@
   margin-bottom: 12px;
 }
 
+.sectionDots {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.sectionDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(16, 24, 40, 0.15);
+}
+
 .rowThreeEqual {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(260px, 1fr));
   gap: 16px;
   width: 100%;
 }
@@ -228,11 +296,38 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
 
+  /* On small screens, make rows horizontally scrollable instead of stacking vertically.
+     Use snap scrolling for a better UX on touch devices. */
   .rowThree,
   .rowThreeEqual,
   .rowTwo {
-    flex-direction: column;
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
     height: auto;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 8px;
+  }
+
+  .rowThree .card,
+  .rowTwo .cardEqual,
+  .rowThreeEqual .cardProduct,
+  .card {
+    flex: 0 0 auto;
+    min-width: 260px;
+    scroll-snap-align: start;
+  }
+
+  .rowTwo .cardEqual,
+  .rowThreeEqual .cardProduct {
+    min-width: 360px;
+    scroll-snap-align: start;
+  }
+
+  .sectionDots {
+    display: flex;
   }
 
   .topSection,
@@ -249,6 +344,15 @@
 /* Hover / focus effects for product cards in the bottom section */
 .rowThreeEqual .leafyCard {
   transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.topSection .leafyCard:hover,
+.topSection .leafyCard:focus-within,
+.topSection .leafyCard:focus {
+  transform: none;
+  box-shadow: 0 4px 7px rgba(16, 24, 40, 0.08);
+  border-color: #E8EDEB;
+  cursor: default;
 }
 
 .rowThreeEqual .leafyCard:hover,
@@ -331,4 +435,101 @@
   height: 100%;
   border: none;
   border-radius: 8px;
+}
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 24, 40, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 1000;
+}
+
+.modalDialog {
+  width: min(560px, 100%);
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 24px 60px rgba(16, 24, 40, 0.18);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.modalCloseButton {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 8px;
+  color: #111827;
+}
+
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formLabel {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.formInput {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 1rem;
+  color: #111827;
+  background: #ffffff;
+}
+
+.formInput:disabled {
+  background: #f9fafb;
+  color: #6b7280;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.stickyButtonContainer {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  z-index: 999;
+}
+
+/* Utility to hide parts of text on small screens (used for button labels) */
+.hideOnMobile {
+  display: inline;
+}
+
+@media (max-width: 480px) {
+  .hideOnMobile {
+    display: none;
+  }
 }
