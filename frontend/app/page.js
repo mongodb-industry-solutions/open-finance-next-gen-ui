@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./page.module.css";
 import { H2, H3, Body, Subtitle } from "@leafygreen-ui/typography";
 import Card from "@leafygreen-ui/card";
+import Badge from "@leafygreen-ui/badge";
 import Button from "@leafygreen-ui/button";
 import Image from "next/image";
 import Icon from "@leafygreen-ui/icon";
@@ -15,6 +16,7 @@ import AccountModal from "@/components/AccountModal/AccountModal";
 import DigitalPaymentModal from "@/components/DigitalPaymentModal/DigitalPaymentModal";
 import TransactionModal from "@/components/TransactionModal/TransactionModal";
 import TransactionsTable from "@/components/TransactionsTable/TransactionsTable";
+import BottomNav from "@/components/BottomNav/BottomNav";
 import { useUser } from "@/lib/context/UserContext";
 import { useHomeData, useAccountsPageData } from "@/lib/api/hooks";
 import { formatCurrency } from "@/lib/api/format";
@@ -33,6 +35,10 @@ const mockAccounts = [
   { id: "acc_002", label: "Savings - 5678" },
   { id: "acc_003", label: "Money Market - 9012" },
 ];
+
+// Leafy Bank accounts get a green badge; any other (external) bank gets blue.
+const bankBadgeVariant = (bank) =>
+  (bank || "").toLowerCase().replace(/\s/g, "") === "leafybank" ? "green" : "blue";
 
 const HomeContent = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -60,7 +66,7 @@ const HomeContent = () => {
         <div className={styles.productsHeader}>
           <H2>Global Position</H2>
         </div>
-        <div className={styles.rowThreeEqual}>
+        <div className={styles.gpRow}>
           <div className={`${styles.card} ${styles.cardEqual}`}>
             <Card className={styles.leafyCard}>
               <div className={styles.cardContent}>
@@ -91,7 +97,7 @@ const HomeContent = () => {
               </div>
             </Card>
           </div>
-          {creditScore && (
+          {/*}   {creditScore && (
             <div className={`${styles.card} ${styles.cardEqual}`}>
               <Card className={styles.leafyCard}>
                 <div className={styles.cardContent}>
@@ -107,10 +113,9 @@ const HomeContent = () => {
                 </div>
               </Card>
             </div>
-          )}
+          )}*/}
         </div>
         <div className={styles.sectionDots}>
-          <span className={styles.sectionDot} />
           <span className={styles.sectionDot} />
           <span className={styles.sectionDot} />
         </div>
@@ -119,8 +124,8 @@ const HomeContent = () => {
       {/* Middle 20% */}
       <section className={styles.midSection}>
         <div className={styles.rowTwo}>
-          <div className={`${styles.card} ${styles.cardEqual}`}>
-            <Card className={styles.leafyCard}>
+          {/* <div className={`${styles.card} ${styles.cardEqual}`}>
+           <Card className={styles.leafyCard}>
               <button
                 onClick={() => {
                   setPendingPrompt("I want to port my loan to a better rate");
@@ -152,7 +157,7 @@ const HomeContent = () => {
                 </div>
               </button>
             </Card>
-          </div>
+          </div>*/}
           <div className={`${styles.card} ${styles.cardEqual}`}>
             <Card className={styles.leafyCard}>
               <button
@@ -176,7 +181,7 @@ const HomeContent = () => {
                   <div className={styles.cardText}>
                     <Subtitle>Get a complete view of your finances</Subtitle>
                     <Body className={styles.cardBodyGray}>
-                      See all your accounts in one place and make smarter financial decisions.
+                      Aggregate your other banks accounts in one place and make smarter financial decisions.
                     </Body>
                   </div>
 
@@ -188,10 +193,7 @@ const HomeContent = () => {
             </Card>
           </div>
         </div>
-        <div className={styles.sectionDots}>
-          <span className={styles.sectionDot} />
-          <span className={styles.sectionDot} />
-        </div>
+
       </section>
 
       {/* Bottom 40% */}
@@ -216,7 +218,7 @@ const HomeContent = () => {
                   setAccountModalOpen(true);
                 }}
               >
-                  Open <span className={styles.hideOnMobile}>Account</span>
+                Open <span className={styles.hideOnMobile}>Account</span>
               </Button>
             }
           >
@@ -234,6 +236,11 @@ const HomeContent = () => {
                       <Body className={styles.cardBodyGray}>
                         Account Number: {account.AccountNumber}
                       </Body>
+                      {account.AccountBank && (
+                        <Badge variant={bankBadgeVariant(account.AccountBank)} className={styles.accountBankBadge}>
+                          {account.AccountBank}
+                        </Badge>
+                      )}
                     </div>
                     <div className={styles.accountAmount}>
                       <Subtitle>
@@ -259,6 +266,11 @@ const HomeContent = () => {
                     <Body className={styles.cardBodyGray}>
                       {card.AccountNumber}
                     </Body>
+                    {card.AccountBank && (
+                      <Badge variant={bankBadgeVariant(card.AccountBank)} className={styles.accountBankBadge}>
+                        {card.AccountBank}
+                      </Badge>
+                    )}
                   </div>
                   <div className={styles.accountAmount}>
                     <Subtitle>{formatCurrency(card.AccountBalance)}</Subtitle>
@@ -275,9 +287,11 @@ const HomeContent = () => {
                   <div key={i} className={styles.accountRow}>
                     <div className={styles.accountInfo}>
                       <Body>{loan.name}</Body>
-                      <Body className={styles.cardBodyGray}>
-                        {loan.institution}
-                      </Body>
+                      {loan.institution && (
+                        <Badge variant={bankBadgeVariant(loan.institution)} className={styles.accountBankBadge}>
+                          {loan.institution}
+                        </Badge>
+                      )}
                     </div>
                     <div className={styles.accountAmount}>
                       <Subtitle>{formatCurrency(loan.balance)}</Subtitle>
@@ -318,6 +332,37 @@ const HomeContent = () => {
           Make Transaction
         </Button>
       </div>
+
+      {/* Mobile-only bottom navigation. Icons are placeholders — swap the
+          `icon` values for the final icons when provided. */}
+      <BottomNav
+        items={[
+          {
+            key: "payments",
+            label: "Payments",
+            icon: <Icon glyph="CreditCard" size="large" />,
+            onClick: () => setDigitalPaymentModalOpen(true),
+          },
+          {
+            key: "transactions",
+            label: "Transactions",
+            icon: <Icon glyph="Coin" size="large" />,
+            onClick: () => setTransactionModalOpen(true),
+          },
+          {
+            key: "assistant",
+            label: "Assistant",
+            icon: <Icon glyph="Sparkle" size="large" />,
+            onClick: () => setModalOpen(true),
+          },
+          {
+            key: "other",
+            label: "Other Actions",
+            icon: <Icon glyph="Ellipsis" size="large" />,
+            onClick: () => { },
+          },
+        ]}
+      />
 
       <DigitalPaymentModal
         isOpen={digitalPaymentModalOpen}

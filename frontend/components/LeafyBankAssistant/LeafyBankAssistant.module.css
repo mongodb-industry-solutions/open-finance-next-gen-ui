@@ -697,3 +697,33 @@
 .tabSectionHeading{
   margin-bottom: 10px;
 }
+
+/* ─── Mobile ─── */
+@media (max-width: 768px) {
+  /* Wider modal: use nearly the full viewport width. */
+  .customModalContainer {
+    max-width: 96vw;
+  }
+
+  .chatContainer {
+    width: 96vw;
+  }
+
+  /* Shorter header: tighter padding and a smaller agent image. */
+  .chatHeader {
+    padding: 6px 16px;
+  }
+
+  .chatHeaderContent {
+    gap: 10px;
+  }
+
+  .agentImage {
+    width: 48px;
+    height: 28px;
+  }
+
+  .chatTitle {
+    font-size: 16px;
+  }
+}

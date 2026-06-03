@@ -12,6 +12,7 @@ import LeafyBankAssistant from "../../components/LeafyBankAssistant/LeafyBankAss
 import IconButton from "@leafygreen-ui/icon-button";
 import Code from "@leafygreen-ui/code";
 import TransactionsTable from "@/components/TransactionsTable/TransactionsTable";
+import MobileActions from "@/components/MobileActions/MobileActions";
 import { useAccountsPageData } from "@/lib/api/hooks";
 import { useUser } from "@/lib/context/UserContext";
 
@@ -135,6 +136,9 @@ export default function AccountsPage() {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
       />
+
+      {/* Mobile-only bottom navigation + its action modals. */}
+      <MobileActions />
     </main>
   );
 }
