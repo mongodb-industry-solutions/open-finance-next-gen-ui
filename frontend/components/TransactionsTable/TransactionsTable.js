@@ -2,7 +2,16 @@ import React, { useState } from "react";
 import Icon from "@leafygreen-ui/icon";
 import IconButton from "@leafygreen-ui/icon-button";
 import Code from "@leafygreen-ui/code";
+import Badge from "@leafygreen-ui/badge";
 import styles from "./TransactionsTable.module.css";
+
+// Leafy Bank transactions get a green badge; any other (external) bank gets blue.
+const bankBadgeVariant = (bank) =>
+  (bank || "").toLowerCase().replace(/\s/g, "") === "leafybank" ? "green" : "blue";
+
+// Internal transactions belong to Leafy Bank; external ones carry their source.
+const bankFor = (t) =>
+  t.bank || (t._isExternal ? t._sourceInstitution || "External" : "Leafy Bank");
 
 const categoryColors = {
   Groceries: "#10B981",
@@ -43,6 +52,7 @@ export default function TransactionsTable({
           <tr>
             <th className={styles.th}></th>
             <th className={styles.th}>Transaction</th>
+            <th className={styles.th}>Institution</th>
             <th className={styles.th} style={{ textAlign: "right" }}>
               Amount
             </th>
@@ -52,7 +62,7 @@ export default function TransactionsTable({
         <tbody>
           {loading ? (
             <tr>
-              <td colSpan={includeExpand ? 4 : 3}>Loading transactions...</td>
+              <td colSpan={includeExpand ? 5 : 4}>Loading transactions...</td>
             </tr>
           ) : transactions.length > 0 ? (
             (() => {
@@ -107,7 +117,7 @@ export default function TransactionsTable({
                 return (
                   <React.Fragment key={key}>
                     <tr className={styles.dayHeader}>
-                      <td colSpan={includeExpand ? 4 : 3} className={styles.dayHeaderCell}>
+                      <td colSpan={includeExpand ? 5 : 4} className={styles.dayHeaderCell}>
                         <div className={styles.dayHeaderLabel}>{label}</div>
                       </td>
                     </tr>
@@ -125,6 +135,13 @@ export default function TransactionsTable({
                               <div className={styles.establishment}>{t.establishment}</div>
                               <div className={styles.category}>{t.category}</div>
                             </div>
+                          </td>
+                          <td>
+                            {bankFor(t) && (
+                              <Badge variant={bankBadgeVariant(bankFor(t))}>
+                                {bankFor(t)}
+                              </Badge>
+                            )}
                           </td>
                           <td style={{ textAlign: "right" }}>
                             <strong>
@@ -149,7 +166,7 @@ export default function TransactionsTable({
 
                         {includeExpand && expandedRow === `${key}-${idx}` && (
                           <tr className={styles.expandedRow}>
-                            <td colSpan={includeExpand ? 4 : 3}>
+                            <td colSpan={includeExpand ? 5 : 4}>
                               <div className={styles.expandedContent}>
                                 <Code language="json">{JSON.stringify(t._rawDocument || t, null, 2)}</Code>
                               </div>
@@ -164,7 +181,7 @@ export default function TransactionsTable({
             })()
           ) : (
             <tr>
-              <td colSpan={includeExpand ? 4 : 3}>No transactions found</td>
+              <td colSpan={includeExpand ? 5 : 4}>No transactions found</td>
             </tr>
           )}
         </tbody>
