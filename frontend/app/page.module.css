@@ -1,22 +1,21 @@
 .container {
   display: flex;
   flex-direction: column;
+  /* Space between sections; each section sizes to its own content. */
+  gap: 16px;
   min-height: calc(100vh - 64px);
 }
 
-/* Section heights relative to viewport - fits the requested 40/20/40 split */
+/* Sections size to the content they contain. */
 .topSection {
-  height: 20vh;
   padding: 16px 24px;
 }
 
 .midSection {
-  height: 10vh;
   padding: 12px 24px;
 }
 
 .bottomSection {
-  height: 55vh;
   padding: 16px 24px;
   display: flex;
   flex-direction: column;
@@ -28,7 +27,6 @@
   flex-direction: column;
   gap: 12px;
   padding: 12px 24px;
-  
 }
 
 .tableWrap {
