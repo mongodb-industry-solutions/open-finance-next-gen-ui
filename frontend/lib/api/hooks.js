@@ -384,12 +384,14 @@ export function useAccountsPageData() {
       title: `${a.AccountType} Account`,
       number: a.AccountNumber,
       amount: a.AccountBalance,
+      bank: a.AccountBank,
     }));
 
   const extCards = externalAccounts.map((a) => ({
     title: `${a.AccountType || "External"} (${a._sourceInstitution || "External"})`,
     number: a.AccountNumber || a.account_number || "",
     amount: a.AccountBalance || a.account_balance || 0,
+    bank: a.AccountBank || a._sourceInstitution || "",
   }));
 
   const allAccounts = [...bankAccounts, ...extCards];
@@ -447,6 +449,7 @@ export function useCreditCardsPageData() {
       title: a.AccountDescription || "Credit Card",
       number: a.AccountNumber,
       amount: Math.abs(a.AccountBalance),
+      bank: a.AccountBank,
     }));
 
   const externalCards = externalAccounts
@@ -459,6 +462,7 @@ export function useCreditCardsPageData() {
       title: `Credit Card (${a._sourceInstitution || "External"})`,
       number: a.AccountNumber || a.Acct?.Id || "",
       amount: Math.abs(a.AccountBalance || a.account_balance || 0),
+      bank: a.AccountBank || a._sourceInstitution || "",
     }));
 
   const creditCards = [...internalCards, ...externalCards];
@@ -514,6 +518,7 @@ export function useLoansPageData() {
     number: p.ProductId || p._id || "",
     amount: p.ProductBalance || 0,
     originalAmount: p.ProductAmount || 0,
+    bank: p._sourceInstitution || p.ProductBank || "",
   }));
 
   const loanTableRows = externalProducts.map((p) => ({

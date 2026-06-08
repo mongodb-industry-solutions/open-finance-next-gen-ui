@@ -21,6 +21,24 @@
     border: 1px solid #E8EDEB;
     box-shadow: 0 4px 7px rgba(16, 24, 40, 0.08);
     border-radius: 24px;
+    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.cardLink:hover .leafyCard,
+.cardLink:focus-within .leafyCard,
+.cardLink:focus .leafyCard {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(16, 24, 40, 0.12);
+  border-color: rgba(16, 24, 40, 0.08);
+}
+
+.cardLink:active .leafyCard {
+  transform: translateY(-1px);
+}
+
+.cardLink:focus-visible .leafyCard {
+  outline: 3px solid rgba(59, 130, 246, 0.18);
+  outline-offset: 4px;
 }
 
 .cardLink {
@@ -30,4 +48,26 @@
 
 .productHeader{
     margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.productHeaderLeft {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.productHeaderAction {
+    flex: 0 0 auto;
+}
+
+@media (max-width: 768px) {
+  .card {
+    min-width: 360px;
+    flex: 0 0 auto;
+  }
 }

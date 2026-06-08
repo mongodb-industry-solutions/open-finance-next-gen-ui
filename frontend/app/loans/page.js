@@ -4,13 +4,19 @@ import React, { useState } from "react";
 import styles from "./page.module.css";
 import { H2, Body, Subtitle } from "@leafygreen-ui/typography";
 import Card from "@leafygreen-ui/card";
+import Badge from "@leafygreen-ui/badge";
 import Image from "next/image";
 import Icon from "@leafygreen-ui/icon";
 import IconButton from "@leafygreen-ui/icon-button";
 import Code from "@leafygreen-ui/code";
 import OverlapCards from "../../components/OverlapCards/OverlapCards";
 import LeafyBankAssistant from "../../components/LeafyBankAssistant/LeafyBankAssistant";
+import MobileActions from "@/components/MobileActions/MobileActions";
 import { useLoansPageData } from "@/lib/api/hooks";
+
+// Leafy Bank gets a green badge; any other (external) bank gets blue.
+const bankBadgeVariant = (bank) =>
+  (bank || "").toLowerCase().replace(/\s/g, "") === "leafybank" ? "green" : "blue";
 
 export default function LoansPage() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -182,7 +188,13 @@ export default function LoansPage() {
                   <React.Fragment key={i}>
                     <tr key={i}>
                       <td>{row.type}</td>
-                      <td>{row.institution}</td>
+                      <td>
+                        {row.institution && (
+                          <Badge variant={bankBadgeVariant(row.institution)}>
+                            {row.institution}
+                          </Badge>
+                        )}
+                      </td>
                       <td>{row.contract}</td>
                       <td style={{ textAlign: "right" }}>
                         {row.outstanding.toLocaleString(
@@ -228,6 +240,9 @@ export default function LoansPage() {
       </section>
 
       <LeafyBankAssistant isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+
+      {/* Mobile-only bottom navigation + its action modals. */}
+      <MobileActions />
     </main>
   );
 }
