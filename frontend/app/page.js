@@ -2,130 +2,130 @@
 
 import React, { useState, useEffect } from "react";
 import styles from "./page.module.css";
-import { H2, Body, Subtitle } from "@leafygreen-ui/typography";
+import { H2, H3, Body, Subtitle } from "@leafygreen-ui/typography";
 import Card from "@leafygreen-ui/card";
+import Badge from "@leafygreen-ui/badge";
+import Button from "@leafygreen-ui/button";
 import Image from "next/image";
 import Icon from "@leafygreen-ui/icon";
 import Link from "next/link";
 import ProductCard from "@/components/ProductCard/ProductCard";
 import LeafyBankAssistant from "../components/LeafyBankAssistant/LeafyBankAssistant";
 import Login from "@/components/Login/Login";
+import AccountModal from "@/components/AccountModal/AccountModal";
+import DigitalPaymentModal from "@/components/DigitalPaymentModal/DigitalPaymentModal";
+import TransactionModal from "@/components/TransactionModal/TransactionModal";
+import TransactionsTable from "@/components/TransactionsTable/TransactionsTable";
+import BottomNav from "@/components/BottomNav/BottomNav";
 import { useUser } from "@/lib/context/UserContext";
-import { useHomeData } from "@/lib/api/hooks";
+import { useHomeData, useAccountsPageData } from "@/lib/api/hooks";
 import { formatCurrency } from "@/lib/api/format";
+
+
+
+const mockPaymentMethods = [
+  { id: "cc", label: "Credit Card" },
+  { id: "debit", label: "Debit Card" },
+  { id: "bank_transfer", label: "Bank Transfer" },
+  { id: "wire", label: "Wire Transfer" },
+];
+
+const mockAccounts = [
+  { id: "acc_001", label: "Checking - 1234" },
+  { id: "acc_002", label: "Savings - 5678" },
+  { id: "acc_003", label: "Money Market - 9012" },
+];
+
+// Leafy Bank accounts get a green badge; any other (external) bank gets blue.
+const bankBadgeVariant = (bank) =>
+  (bank || "").toLowerCase().replace(/\s/g, "") === "leafybank" ? "green" : "blue";
 
 const HomeContent = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const { selectedUser } = useUser();
-  const { totalBalance, totalDebt, bankAccounts, creditCards, creditScore, loans, loading } = useHomeData();
+  const { totalBalance, totalDebt, bankAccounts, creditCards, creditScore, loans, loading: homeLoading } = useHomeData();
+  const { recentTxns, txLoading } = useAccountsPageData();
   const [pendingPrompt, setPendingPrompt] = useState(null);
+  const [accountModalOpen, setAccountModalOpen] = useState(false);
+  const [accountBalance, setAccountBalance] = useState("");
+  const [accountType, setAccountType] = useState("");
+  const [digitalPaymentModalOpen, setDigitalPaymentModalOpen] = useState(false);
+  const [transactionModalOpen, setTransactionModalOpen] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [paymentOriginatorAccount, setPaymentOriginatorAccount] = useState("");
+  const [paymentBeneficiaryAccount, setPaymentBeneficiaryAccount] = useState("");
+  const [transactionAmount, setTransactionAmount] = useState("");
+  const [transactionOriginatorAccount, setTransactionOriginatorAccount] = useState("");
+  const [transactionBeneficiaryAccount, setTransactionBeneficiaryAccount] = useState("");
 
   return (
     <main className={styles.container}>
       {/* Top 40% */}
       <section className={styles.topSection}>
-        <div className={styles.rowThree}>
-          <div className={`${styles.card} ${styles.cardSmall}`}>
+        <div className={styles.productsHeader}>
+          <H2>Global Position</H2>
+        </div>
+        <div className={styles.gpRow}>
+          <div className={`${styles.card} ${styles.cardEqual}`}>
             <Card className={styles.leafyCard}>
-              <div className={styles.globalPosition}>
-                <div className={styles.productHeader}>
-                  <Subtitle>Global Position</Subtitle>
+              <div className={styles.cardContent}>
+                <div className={styles.thumbWrap}>
+                  <Image src="/balance.png" alt="Total Balance" width={48} height={48} />
                 </div>
-
-                <div className={styles.gpSection}>
+                <div className={styles.cardText}>
                   <Subtitle>
-                    {loading ? "..." : formatCurrency(totalBalance)}
+                    {homeLoading ? "..." : formatCurrency(totalBalance)}
                   </Subtitle>
                   <Body className={styles.cardBodyGray}>Total Balance</Body>
                 </div>
-
-                <div className={styles.divider} />
-
-                <div className={styles.gpSection}>
-                  <Subtitle>
-                    {loading ? "..." : formatCurrency(totalDebt)}
-                  </Subtitle>
-                  <Body className={styles.cardBodyGray}>Total Debt</Body>
-                </div>
-
-                {creditScore && (
-                  <>
-                    <div className={styles.divider} />
-                    <div className={styles.gpSection}>
-                      <Subtitle>{creditScore.Score}</Subtitle>
-                      <Body className={styles.cardBodyGray}>
-                        Credit Score ({creditScore.Bureau})
-                      </Body>
-                    </div>
-                  </>
-                )}
               </div>
             </Card>
           </div>
-          <div className={`${styles.card} ${styles.cardLarge}`}>
+          <div className={`${styles.card} ${styles.cardEqual}`}>
             <Card className={styles.leafyCard}>
-              {selectedUser?.name === 'fridaklo' && (
-                <div className={styles.pieChartWrap}>
-                  <iframe
-                    width="640"
-                    height="480"
-                    src="https://charts.mongodb.com/charts-jeffn-zsdtj/embed/charts?id=69a017b3-1c44-4849-ae8e-22b85402ae39&maxDataAge=3600&theme=light&autoRefresh=true"
-                  ></iframe>
+              <div className={styles.cardContent}>
+                <div className={styles.thumbWrap}>
+                  <Image src="/debt.png" alt="Total Debt" width={48} height={48} />
                 </div>
-              )}
-              {selectedUser?.name === 'hellyrig' && (
-                <div className={styles.pieChartWrap}>
-                  <iframe
-                    width="640"
-                    height="480"
-                    src="https://charts.mongodb.com/charts-jeffn-zsdtj/embed/charts?id=028e0b6f-9882-496f-80ab-6929ad2d49b8&maxDataAge=3600&theme=light&autoRefresh=true"
-                  ></iframe>
+                <div className={styles.cardText}>
+                  <Subtitle>
+                    {homeLoading ? "..." : formatCurrency(totalDebt)}
+                  </Subtitle>
+                  <Body className={styles.cardBodyGray}>Total Debt</Body>
                 </div>
-              )}
-              {(!selectedUser?.name || (selectedUser?.name !== 'fridaklo' && selectedUser?.name !== 'hellyrig')) && (
-                <div className={styles.productHeader}>
-                  <Subtitle>Spending Last Month</Subtitle>
-                </div>
-              )}
+              </div>
             </Card>
           </div>
-          <div className={`${styles.card} ${styles.cardSmall}`}>
-            <Card className={styles.leafyCard}>
-              {selectedUser?.name === 'fridaklo' && (
-                <div className={styles.pieChartWrap}>
-                  <iframe
-                    style={{ background: '#FFFFFF', border: 'none', borderRadius: '2px', boxShadow: '0 2px 10px 0 rgba(70, 76, 79, .2)' }}
-                    width="640"
-                    height="480"
-                    src="https://charts.mongodb.com/charts-jeffn-zsdtj/embed/charts?id=1066e97f-6628-49be-a720-462c0d87d32c&maxDataAge=3600&theme=light&autoRefresh=true"
-                  ></iframe>
+          {/*}   {creditScore && (
+            <div className={`${styles.card} ${styles.cardEqual}`}>
+              <Card className={styles.leafyCard}>
+                <div className={styles.cardContent}>
+                  <div className={styles.thumbWrap}>
+                    <Image src="/credit.png" alt="Credit Score" width={48} height={48} />
+                  </div>
+                  <div className={styles.cardText}>
+                    <Subtitle>{creditScore.Score}</Subtitle>
+                    <Body className={styles.cardBodyGray}>
+                      Credit Score ({creditScore.Bureau})
+                    </Body>
+                  </div>
                 </div>
-              )}
-              {selectedUser?.name === 'hellyrig' && (
-                <div className={styles.pieChartWrap}>
-                  <iframe
-                    style={{ background: '#FFFFFF', border: 'none', borderRadius: '2px', boxShadow: '0 2px 10px 0 rgba(70, 76, 79, .2)' }}
-                    width="640"
-                    height="480"
-                    src="https://charts.mongodb.com/charts-jeffn-zsdtj/embed/charts?id=45137520-16e5-430a-8a12-b07deca1b69e&maxDataAge=3600&theme=light&autoRefresh=true"
-                  ></iframe>
-                </div>
-              )}
-              {(!selectedUser?.name || (selectedUser?.name !== 'fridaklo' && selectedUser?.name !== 'hellyrig')) && (
-                <div className={styles.productHeader}>
-                  <Subtitle>Pie Chart</Subtitle>
-                </div>
-              )}
-            </Card>
-          </div>
+              </Card>
+            </div>
+          )}*/}
+        </div>
+        <div className={styles.sectionDots}>
+          <span className={styles.sectionDot} />
+          <span className={styles.sectionDot} />
         </div>
       </section>
 
       {/* Middle 20% */}
       <section className={styles.midSection}>
         <div className={styles.rowTwo}>
-          <div className={`${styles.card} ${styles.cardEqual}`}>
-            <Card className={styles.leafyCard}>
+          {/* <div className={`${styles.card} ${styles.cardEqual}`}>
+           <Card className={styles.leafyCard}>
               <button
                 onClick={() => {
                   setPendingPrompt("I want to port my loan to a better rate");
@@ -157,7 +157,7 @@ const HomeContent = () => {
                 </div>
               </button>
             </Card>
-          </div>
+          </div>*/}
           <div className={`${styles.card} ${styles.cardEqual}`}>
             <Card className={styles.leafyCard}>
               <button
@@ -181,7 +181,7 @@ const HomeContent = () => {
                   <div className={styles.cardText}>
                     <Subtitle>Get a complete view of your finances</Subtitle>
                     <Body className={styles.cardBodyGray}>
-                      See all your accounts in one place and make smarter financial decisions.
+                      Aggregate your other banks accounts in one place and make smarter financial decisions.
                     </Body>
                   </div>
 
@@ -193,6 +193,7 @@ const HomeContent = () => {
             </Card>
           </div>
         </div>
+
       </section>
 
       {/* Bottom 40% */}
@@ -201,9 +202,28 @@ const HomeContent = () => {
           <H2>Products</H2>
         </div>
         <div className={styles.rowThreeEqual}>
-          <ProductCard href="/accounts" imgSrc="/bank.png" imgAlt="accounts" title="Accounts">
+          <ProductCard
+            href="/accounts"
+            imgSrc="/bank.png"
+            imgAlt="accounts"
+            title="Accounts"
+            actionButton={
+              <Button
+                size="small"
+                variant="default"
+                leftGlyph={<Icon glyph="Plus" />}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setAccountModalOpen(true);
+                }}
+              >
+                Open <span className={styles.hideOnMobile}>Account</span>
+              </Button>
+            }
+          >
             <div className={styles.accountList}>
-              {loading ? (
+              {homeLoading ? (
                 <Body className={styles.cardBodyGray}>Loading...</Body>
               ) : bankAccounts.length > 0 ? (
                 bankAccounts.map((account) => (
@@ -216,6 +236,11 @@ const HomeContent = () => {
                       <Body className={styles.cardBodyGray}>
                         Account Number: {account.AccountNumber}
                       </Body>
+                      {account.AccountBank && (
+                        <Badge variant={bankBadgeVariant(account.AccountBank)} className={styles.accountBankBadge}>
+                          {account.AccountBank}
+                        </Badge>
+                      )}
                     </div>
                     <div className={styles.accountAmount}>
                       <Subtitle>
@@ -241,6 +266,11 @@ const HomeContent = () => {
                     <Body className={styles.cardBodyGray}>
                       {card.AccountNumber}
                     </Body>
+                    {card.AccountBank && (
+                      <Badge variant={bankBadgeVariant(card.AccountBank)} className={styles.accountBankBadge}>
+                        {card.AccountBank}
+                      </Badge>
+                    )}
                   </div>
                   <div className={styles.accountAmount}>
                     <Subtitle>{formatCurrency(card.AccountBalance)}</Subtitle>
@@ -257,9 +287,11 @@ const HomeContent = () => {
                   <div key={i} className={styles.accountRow}>
                     <div className={styles.accountInfo}>
                       <Body>{loan.name}</Body>
-                      <Body className={styles.cardBodyGray}>
-                        {loan.institution}
-                      </Body>
+                      {loan.institution && (
+                        <Badge variant={bankBadgeVariant(loan.institution)} className={styles.accountBankBadge}>
+                          {loan.institution}
+                        </Badge>
+                      )}
                     </div>
                     <div className={styles.accountAmount}>
                       <Subtitle>{formatCurrency(loan.balance)}</Subtitle>
@@ -274,7 +306,99 @@ const HomeContent = () => {
             </div>
           </ProductCard>
         </div>
+        <div className={styles.sectionDots}>
+          <span className={styles.sectionDot} />
+          <span className={styles.sectionDot} />
+          <span className={styles.sectionDot} />
+        </div>
       </section>
+
+      <section className={styles.activitySection}>
+        <H3>Recent Activity</H3>
+        <TransactionsTable transactions={recentTxns} loading={txLoading} />
+      </section>
+
+      <div className={styles.stickyButtonContainer}>
+        <Button
+          variant="baseGreen"
+          onClick={() => setDigitalPaymentModalOpen(true)}
+        >
+          Make Digital Payment
+        </Button>
+        <Button
+          variant="baseGreen"
+          onClick={() => setTransactionModalOpen(true)}
+        >
+          Make Transaction
+        </Button>
+      </div>
+
+      {/* Mobile-only bottom navigation. Icons are placeholders — swap the
+          `icon` values for the final icons when provided. */}
+      <BottomNav
+        items={[
+          {
+            key: "payments",
+            label: "Payments",
+            icon: <Icon glyph="CreditCard" size="large" />,
+            onClick: () => setDigitalPaymentModalOpen(true),
+          },
+          {
+            key: "transactions",
+            label: "Transactions",
+            icon: <Icon glyph="Coin" size="large" />,
+            onClick: () => setTransactionModalOpen(true),
+          },
+          {
+            key: "assistant",
+            label: "Assistant",
+            icon: <Icon glyph="Sparkle" size="large" />,
+            onClick: () => setModalOpen(true),
+          },
+          {
+            key: "other",
+            label: "Other Actions",
+            icon: <Icon glyph="Ellipsis" size="large" />,
+            onClick: () => { },
+          },
+        ]}
+      />
+
+      <DigitalPaymentModal
+        isOpen={digitalPaymentModalOpen}
+        onClose={() => setDigitalPaymentModalOpen(false)}
+        amount={paymentAmount}
+        setAmount={setPaymentAmount}
+        method={paymentMethod}
+        setMethod={setPaymentMethod}
+        originatorAccount={paymentOriginatorAccount}
+        setOriginatorAccount={setPaymentOriginatorAccount}
+        beneficiaryAccount={paymentBeneficiaryAccount}
+        setBeneficiaryAccount={setPaymentBeneficiaryAccount}
+        paymentMethods={mockPaymentMethods}
+        accounts={mockAccounts}
+      />
+
+      <TransactionModal
+        isOpen={transactionModalOpen}
+        onClose={() => setTransactionModalOpen(false)}
+        amount={transactionAmount}
+        setAmount={setTransactionAmount}
+        originatorAccount={transactionOriginatorAccount}
+        setOriginatorAccount={setTransactionOriginatorAccount}
+        beneficiaryAccount={transactionBeneficiaryAccount}
+        setBeneficiaryAccount={setTransactionBeneficiaryAccount}
+        accounts={mockAccounts}
+      />
+
+      <AccountModal
+        isOpen={accountModalOpen}
+        onClose={() => setAccountModalOpen(false)}
+        accountBalance={accountBalance}
+        setAccountBalance={setAccountBalance}
+        accountType={accountType}
+        setAccountType={setAccountType}
+      />
 
       <LeafyBankAssistant
         isOpen={modalOpen}

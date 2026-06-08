@@ -12,23 +12,31 @@ import styles from "./ProductCard.module.css";
  *   imgSrc    - URL for the product icon/image
  *   imgAlt    - alt text for the image
  *   title     - heading text shown next to the image
+ *   actionButton - optional button element to display in header
  *   children  - any additional content to render below the header
  */
-export default function ProductCard({ href, imgSrc, imgAlt, title, children }) {
+export default function ProductCard({ href, imgSrc, imgAlt, title, actionButton, children }) {
   return (
     <div className={`${styles.card} ${styles.cardProduct}`}>
       <Link href={href} className={styles.cardLink}>
         <Card className={styles.leafyCard}>
           <div className={styles.productInner}>
             <div className={styles.productHeader}>
-              <Image
-                src={imgSrc}
-                alt={imgAlt}
-                width={48}
-                height={48}
-                className={styles.productImage}
-              />
-              <Subtitle>{title}</Subtitle>
+              <div className={styles.productHeaderLeft}>
+                <Image
+                  src={imgSrc}
+                  alt={imgAlt}
+                  width={48}
+                  height={48}
+                  className={styles.productImage}
+                />
+                <Subtitle>{title}</Subtitle>
+              </div>
+              {actionButton && (
+                <div className={styles.productHeaderAction} onClick={(e) => e.stopPropagation()}>
+                  {actionButton}
+                </div>
+              )}
             </div>
 
             {children}

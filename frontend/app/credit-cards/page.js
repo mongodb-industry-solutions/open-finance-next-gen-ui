@@ -8,35 +8,20 @@ import Image from "next/image";
 import Icon from "@leafygreen-ui/icon";
 import IconButton from "@leafygreen-ui/icon-button";
 import Code from "@leafygreen-ui/code";
+import TransactionsTable from "@/components/TransactionsTable/TransactionsTable";
 import OverlapCards from "../../components/OverlapCards/OverlapCards";
 import LeafyBankAssistant from "../../components/LeafyBankAssistant/LeafyBankAssistant";
+import MobileActions from "@/components/MobileActions/MobileActions";
 import { useCreditCardsPageData } from "@/lib/api/hooks";
 import { useUser } from "@/lib/context/UserContext";
 
-const categoryColors = {
-  "Groceries": "#10B981",
-  "Restaurants": "#F59E0B",
-  "Travel": "#3B82F6",
-  "Entertainment": "#8B5CF6",
-  "Movie Theatres": "#8B5CF6",
-  "Streaming Services": "#8B5CF6",
-  "Utilities": "#EF4444",
-  "Clothing Stores": "#EC4899",
-  "Department Stores": "#EC4899",
-  "Healthcare": "#06B6D4",
-  "Pharmacy": "#06B6D4",
-  "Other": "#dfdfdf",
-};
 
-const getCategoryColor = (category) => {
-  return categoryColors[category] || categoryColors["Other"];
-};
 
 export default function CreditCardsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const { selectedUser } = useUser();
   const { creditCards, cardTxns, accountsLoading, txLoading } = useCreditCardsPageData();
-  const [expandedRow, setExpandedRow] = useState(null);
+  
 
   return (
     <main className={styles.container}>
@@ -138,80 +123,16 @@ export default function CreditCardsPage() {
 
       <section className={styles.bottomSection}>
         <H2>Transactions</H2>
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th className={styles.th}></th>
-                <th className={styles.th}>Category</th>
-                <th className={styles.th}>Establishment</th>
-                <th className={styles.th}>Date</th>
-                <th className={styles.th} style={{ textAlign: "right" }}>
-                  Amount
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {txLoading ? (
-                <tr>
-                  <td colSpan={6}>Loading transactions...</td>
-                </tr>
-              ) : cardTxns.length > 0 ? (
-                cardTxns.map((t, i) => (
-
-                  <React.Fragment key={i}>
-                    <tr key={i}>
-                      <td className={styles.categoryCircleCell}>
-                        <div
-                          className={styles.categoryCircle}
-                          style={{ backgroundColor: getCategoryColor(t.category) }}
-                        ></div>
-                      </td>
-                      <td>{t.category}</td>
-                      <td>{t.establishment}</td>
-                      <td>{t.date}</td>
-                      <td style={{ textAlign: "right" }}>
-                        {t.amount.toLocaleString(undefined, {
-                          style: "currency",
-                          currency: "USD",
-                        })}
-                      </td>
-
-                      <td>
-
-                        <IconButton
-                          className={styles.iconButton}
-                          onClick={() =>
-                            setExpandedRow(expandedRow === i ? null : i)
-                          }>
-                          <Icon glyph="CurlyBraces" />
-                        </IconButton>
-
-                      </td>
-                    </tr>
-
-                    {expandedRow === i && (
-                      <tr className={styles.expandedRow}>
-                        <td colSpan={6}>
-                          <div className={styles.expandedContent}>
-                            <Code language="json">{JSON.stringify(t._rawDocument || t, null, 2)}</Code>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </React.Fragment>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={5}>No credit card transactions found</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        <TransactionsTable
+          transactions={cardTxns}
+          loading={txLoading}
+        />
       </section>
 
       <LeafyBankAssistant isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+
+      {/* Mobile-only bottom navigation + its action modals. */}
+      <MobileActions />
     </main>
   );
 }

@@ -90,7 +90,8 @@ const NavBarContent = () => {
                         </span>
                     ))}
 
-                    <div className={styles.profileContainer}>
+{/*}
+                        <div className={styles.profileContainer}>
                         <label className={styles.profileLabel}>Spending Profile</label>
                         <select
                             className={styles.profileSelect}
@@ -101,7 +102,7 @@ const NavBarContent = () => {
                             <option value="overspender">Overspender</option>
                             <option value="saver">Saver</option>
                         </select>
-                    </div>
+                    </div>*/}
 
                     <div className={styles.userInfoContainer} onClick={() => setShowUserModal(true)}>
                         {selectedUser?.id && (
@@ -119,6 +120,15 @@ const NavBarContent = () => {
                             {userRole && <div className={styles.userRole}>{userRole}</div>}
                         </div>
                     </div>
+
+                    <button
+                        type="button"
+                        className={styles.mobileMenuButton}
+                        onClick={() => setShowUserModal(true)}
+                        aria-label="Open user menu"
+                    >
+                        <span className={styles.mobileMenuIcon}>☰</span>
+                    </button>
                 </div>
             </header>
         </>

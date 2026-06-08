@@ -191,3 +191,41 @@
     display: inline-block;
 }
 
+
+/* Mobile: stack the top section cards vertically, one under the other.
+   Keep the transactions (bottom) section unchanged. */
+@media (max-width: 768px) {
+  .topSection {
+    height: auto;
+  }
+
+  .rowThree {
+    flex-direction: column;
+  }
+
+  .topCard,
+  .stackColumn,
+  .stackTopCard,
+  .stackBottomCard {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .stackColumn {
+    height: auto;
+  }
+
+  /* Cards holding charts/overlap content need an explicit height once they're
+     no longer stretched by the row. */
+  .topCard,
+  .stackTopCard {
+    min-height: 260px;
+  }
+}
+
+/* Mobile: leave room so content isn't hidden behind the fixed bottom nav. */
+@media (max-width: 768px) {
+  .container {
+    padding-bottom: 80px;
+  }
+}

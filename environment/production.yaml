@@ -1,6 +1,13 @@
 ## Production environment configuration for open-finance-nextgen-ui
 ## These values are passed to the Helm chart via drone-helm
 
+security:
+  dataClassification: "Internal"
+  dataDesignation: ["MI"]
+
+ownership:
+  driEmail: "kiran.tulsulkar@mongodb.com"
+
 env:
   NODE_ENV: production
   ## Backend service URLs (in-cluster DNS names from Kanopy)
