@@ -8,12 +8,31 @@ import styles from './Login.module.css';
 import User from '@/components/User/User';
 import { USER_LIST } from "@/lib/constants";
 import Banner from "@leafygreen-ui/banner";
+import Badge from "@leafygreen-ui/badge";
 import { useUser } from "@/lib/context/UserContext";
+
+const UserHorizontal = ({ user, isSelectedUser, onSelect }) => (
+    <div
+        onClick={() => onSelect(user)}
+        className={`${styles.userHorizontalCard} ${isSelectedUser ? styles.selected : ''}`}
+    >
+        <div className={`${styles.userHorizontalAvatar} ${isSelectedUser ? styles.selected : ''}`}>
+            <img src={`/users/${user.id}.png`} alt={user.name} />
+        </div>
+        <div className={styles.userHorizontalInfo}>
+            <span className={styles.userHorizontalName}>{user.name}</span>
+            <span className={styles.userHorizontalRole}>{user.role}</span>
+        </div>
+    </div>
+);
 
 const Login = ({ onDone }) => {
     const { selectUser } = useUser();
     const [open, setOpen] = useState(true);
     const [selectedLocal, setSelectedLocal] = useState(null);
+
+    const retailUsers = USER_LIST.filter(u => u.section === 'retail');
+    const backofficeUsers = USER_LIST.filter(u => u.section === 'backoffice');
 
     const handleUserSelect = (user) => {
         setSelectedLocal(user);
@@ -52,21 +71,33 @@ const Login = ({ onDone }) => {
                 >
                     <Icon glyph="X" />
                 </div>
+
                 <div className={styles.modalMainContent}>
                     <H2 className={styles.centerText}>Welcome to Leafy Bank</H2>
-                    <Subtitle className={`${styles.weightNormal} ${styles.centerText} mt-2`}>This is a MongoDB demo</Subtitle>
-                  
-
-                    <Banner variant="warning" className={styles.warningBanner}>
-                        Please make sure pop-ups are enabled in your browser to ensure the demo runs smoothly and all features display correctly.
-                    </Banner>
 
                     <Description className={styles.descriptionModal}>
                         Please select the user you would like to login as:
                     </Description>
 
-                    <div className={`${styles.usersContainer}`}>
-                        {USER_LIST.map(user => (
+                    {/* ── RETAIL ── */}
+                    <Badge variant="blue" className={styles.badgeInfo}>RETAIL USERS</Badge>
+
+                    <div className={styles.retailUsersContainer}>
+                        {retailUsers.map(user => (
+                            <UserHorizontal
+                                user={user}
+                                isSelectedUser={selectedLocal && selectedLocal.id === user.id}
+                                key={user.id}
+                                onSelect={handleUserSelect}
+                            />
+                        ))}
+                    </div>
+
+                    {/* ── BACKOFFICE ── */}
+                    <Badge variant="purple" className={styles.badgeInfo}>BACKOFFICE USERS</Badge>
+
+                    <div className={styles.usersContainer}>
+                        {backofficeUsers.map(user => (
                             <User
                                 user={user}
                                 isSelectedUser={selectedLocal && selectedLocal.id === user.id}
@@ -77,15 +108,10 @@ const Login = ({ onDone }) => {
                         ))}
                     </div>
 
-                    <div className={styles.parentContainer}>
-                        <Banner variant="info" className="mb-3">
-                            For the best experience, we recommend logging in as &quot;fridaklo&quot; or &quot;hellyrig&quot; to explore different scenarios!
-                        </Banner>
-                    </div>
+                    <Banner variant="warning" className={styles.warningBanner}>
+                        Please make sure pop-ups are enabled in your browser to ensure the demo runs smoothly and all features display correctly.
+                    </Banner>
 
-                    <Description className={`${styles.descriptionModal} mb-3`}>
-                        Note: Each user has pre-loaded data, such as recent transactions, and opened accounts. This variation is designed to showcase different scenarios, providing a more dynamic and realistic user experience for the demo.
-                    </Description>
                 </div>
             </Container>
         </Modal>

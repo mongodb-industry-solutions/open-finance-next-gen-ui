@@ -8,7 +8,11 @@ import Card from '@leafygreen-ui/card';
 import styles from './User.module.css';
 
 const User = ({ user = null, isSelectedUser = false, setOpen, setLocalSelectedUser = null }) => {
-    const selectUserAndCloseModal = () => {
+    const handleClick = () => {
+        if (user.url) {
+            window.open(user.url, '_blank');
+            return;
+        }
         if (!setLocalSelectedUser) return;
         setLocalSelectedUser(user);
         setOpen(false);
@@ -17,11 +21,11 @@ const User = ({ user = null, isSelectedUser = false, setOpen, setLocalSelectedUs
     return (
         <Card
             className={`${styles.userCard} ${user !== null ? 'cursorPointer' : ''} ${isSelectedUser ? styles.userSelected : ''}`}
-            onClick={() => selectUserAndCloseModal()}
+            onClick={handleClick}
         >
             <img src={`/users/${user.id}.png`} alt="User Avatar" />
-            <Body className={styles.userName}>{user.name}</Body> 
-            <Body className={styles.userRole}>{user.role}</Body> 
+            <Body className={styles.userName}>{user.name}</Body>
+            <Body className={styles.userRole}>{user.role}</Body>
         </Card>
     );
 };
