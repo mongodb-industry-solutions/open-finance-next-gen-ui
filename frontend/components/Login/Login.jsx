@@ -3,38 +3,18 @@
 import React, { useState } from 'react';
 import Icon from '@leafygreen-ui/icon';
 import { Modal, Container } from 'react-bootstrap';
-import { H2, Subtitle, Description } from '@leafygreen-ui/typography';
+import { H2, Description } from '@leafygreen-ui/typography';
 import styles from './Login.module.css';
 import User from '@/components/User/User';
 import { USER_LIST } from "@/lib/constants";
 import Banner from "@leafygreen-ui/banner";
-import Badge from "@leafygreen-ui/badge";
 import { useUser } from "@/lib/context/UserContext";
-
-const UserHorizontal = ({ user, isSelectedUser, onSelect }) => (
-    <div
-        onClick={() => onSelect(user)}
-        className={`${styles.userHorizontalCard} ${isSelectedUser ? styles.selected : ''}`}
-    >
-        <div className={`${styles.userHorizontalAvatar} ${isSelectedUser ? styles.selected : ''}`}>
-            <img src={`/users/${user.id}.png`} alt={user.name} />
-        </div>
-        <div className={styles.userHorizontalInfo}>
-            <span className={styles.userHorizontalName}>{user.name}</span>
-            <span className={styles.userHorizontalRole}>{user.role}</span>
-            {user.spendingProfile && (
-                <span className={`${styles.spendingBadge} ${styles[`spending${user.spendingProfile}`]}`}>
-                    {user.spendingProfile}
-                </span>
-            )}
-        </div>
-    </div>
-);
 
 const Login = ({ onDone }) => {
     const { selectUser } = useUser();
     const [open, setOpen] = useState(true);
     const [selectedLocal, setSelectedLocal] = useState(null);
+    const [step, setStep] = useState('choose'); // 'choose' | 'retail' | 'backoffice'
 
     const retailUsers = USER_LIST.filter(u => u.section === 'retail');
     const backofficeUsers = USER_LIST.filter(u => u.section === 'backoffice');
@@ -64,59 +44,99 @@ const Login = ({ onDone }) => {
             backdrop="static"
         >
             <Container className={styles.modalContainer}>
-                <div
-                    className={`d-flex flex-row-reverse p-1 cursorPointer ${!selectedLocal ? styles.disabledCloseButton : ''}`}
-                    onClick={() => {
-                        if (!selectedLocal) {
-                            alert("You must select a user before proceeding!");
-                        } else {
-                            setOpen(false);
-                        }
-                    }}
-                >
-                    <Icon glyph="X" />
+                <div className={styles.modalHeader}>
+                    {step !== 'choose' && (
+                        <button className={styles.goBackBtn} onClick={() => setStep('choose')}>
+                            <Icon glyph="ArrowLeft" /> Go back
+                        </button>
+                    )}
+                    <div
+                        className={`${styles.closeBtn} ${!selectedLocal ? styles.disabledCloseButton : ''}`}
+                        onClick={() => {
+                            if (!selectedLocal) {
+                                alert("You must select a user before proceeding!");
+                            } else {
+                                setOpen(false);
+                            }
+                        }}
+                    >
+                        <Icon glyph="X" />
+                    </div>
                 </div>
 
                 <div className={styles.modalMainContent}>
                     <H2 className={styles.centerText}>Welcome to Leafy Bank</H2>
 
-                    <Description className={styles.descriptionModal}>
-                        Please select the user you would like to login as:
-                    </Description>
+                    {step === 'choose' && (
+                        <>
+                            <Description className={styles.descriptionModal}>
+                                Choose who you are to get started:
+                            </Description>
+                            <div className={styles.categoryContainer}>
+                                <div
+                                    className={`${styles.categoryCard} ${styles.categoryRetail}`}
+                                    onClick={() => setStep('retail')}
+                                >
+                                    <div className={styles.categoryEmoji}>🏦</div>
+                                    <div className={styles.categoryTitle}>Bank Customer</div>
+                                    <div className={styles.categoryDescription}>
+                                        Pretend you're a customer of Leafy Bank — access payment, account creation and open banking demo flows.
+                                    </div>
+                                </div>
+                                <div
+                                    className={`${styles.categoryCard} ${styles.categoryBackoffice}`}
+                                    onClick={() => setStep('backoffice')}
+                                >
+                                    <div className={styles.categoryEmoji}>🛡️</div>
+                                    <div className={styles.categoryTitle}>Backoffice</div>
+                                    <div className={styles.categoryDescription}>
+                                        Access all bank backoffice operational features including fraud detection and portfolio management.
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    )}
 
-                    {/* ── RETAIL ── */}
-                    <Badge variant="blue" className={styles.badgeInfo}>BANK CUSTOMERS</Badge>
+                    {step === 'retail' && (
+                        <>
+                            <Description className={styles.descriptionModal}>
+                                Select a bank customer to login as:
+                            </Description>
+                            <div className={styles.usersContainer}>
+                                {retailUsers.map(user => (
+                                    <User
+                                        user={user}
+                                        isSelectedUser={selectedLocal && selectedLocal.id === user.id}
+                                        key={user.id}
+                                        setOpen={setOpen}
+                                        setLocalSelectedUser={handleUserSelect}
+                                    />
+                                ))}
+                            </div>
+                            <Banner variant="warning" className={styles.warningBanner}>
+                                Please make sure pop-ups are enabled in your browser to ensure the demo runs smoothly and all features display correctly.
+                            </Banner>
+                        </>
+                    )}
 
-                    <div className={styles.retailUsersContainer}>
-                        {retailUsers.map(user => (
-                            <UserHorizontal
-                                user={user}
-                                isSelectedUser={selectedLocal && selectedLocal.id === user.id}
-                                key={user.id}
-                                onSelect={handleUserSelect}
-                            />
-                        ))}
-                    </div>
-
-                    {/* ── BACKOFFICE ── */}
-                    <Badge variant="purple" className={styles.badgeInfo}>BANK OPERATIONS USERS</Badge>
-
-                    <div className={styles.usersContainer}>
-                        {backofficeUsers.map(user => (
-                            <User
-                                user={user}
-                                isSelectedUser={selectedLocal && selectedLocal.id === user.id}
-                                key={user.id}
-                                setOpen={setOpen}
-                                setLocalSelectedUser={handleUserSelect}
-                            />
-                        ))}
-                    </div>
-
-                    <Banner variant="warning" className={styles.warningBanner}>
-                        Please make sure pop-ups are enabled in your browser to ensure the demo runs smoothly and all features display correctly.
-                    </Banner>
-
+                    {step === 'backoffice' && (
+                        <>
+                            <Description className={styles.descriptionModal}>
+                                Select a backoffice user to login as:
+                            </Description>
+                            <div className={styles.usersContainer}>
+                                {backofficeUsers.map(user => (
+                                    <User
+                                        user={user}
+                                        isSelectedUser={selectedLocal && selectedLocal.id === user.id}
+                                        key={user.id}
+                                        setOpen={setOpen}
+                                        setLocalSelectedUser={handleUserSelect}
+                                    />
+                                ))}
+                            </div>
+                        </>
+                    )}
                 </div>
             </Container>
         </Modal>

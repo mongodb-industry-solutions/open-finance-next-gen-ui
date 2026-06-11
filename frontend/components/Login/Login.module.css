@@ -77,6 +77,20 @@
     }
 }
 
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 4px;
+    min-height: 32px;
+}
+
+.closeBtn {
+    cursor: pointer;
+    margin-left: auto;
+    padding: 4px;
+}
+
 .disabledCloseButton {
     cursor: not-allowed;
     opacity: 0.5;
@@ -196,6 +210,96 @@
     color: #e65100;
 }
 
+
+.categoryContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    margin: 24px auto;
+    justify-content: center;
+    max-width: 680px;
+}
+
+.categoryCard {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 36px 28px;
+    border-radius: 16px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+.categoryCard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.09);
+}
+
+.categoryRetail {
+    background-color: #f0f6ff;
+    border-color: #c5deff;
+}
+
+.categoryRetail:hover {
+    border-color: #4295f7;
+}
+
+.categoryBackoffice {
+    background-color: #f5f0ff;
+    border-color: #d6c5ff;
+}
+
+.categoryBackoffice:hover {
+    border-color: #8e43e7;
+}
+
+.categoryEmoji {
+    font-size: 44px;
+    margin-bottom: 12px;
+    line-height: 1;
+}
+
+.categoryTitle {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+}
+
+.categoryDescription {
+    font-size: 13px;
+    color: #6b6b6b;
+    line-height: 1.55;
+}
+
+.goBackBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #5c6e8a;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 4px 0;
+    margin-bottom: 4px;
+    transition: color 0.15s;
+}
+
+.goBackBtn:hover {
+    color: #1a1a1a;
+}
+
+@media (max-width: 540px) {
+    .categoryContainer {
+        flex-direction: column;
+        max-width: 100%;
+    }
+}
 
 /* Remove border-radius when modal is fullscreen */
 @media (max-width: 767.98px) {

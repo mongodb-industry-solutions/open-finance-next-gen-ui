@@ -46,6 +46,7 @@ export const USER_MAP = {
         Currency: "USD",
         IncomeFrequency: null,
         Url: "https://fsi-fraud-detection.industrysolutions.prod.corp.mongodb.com/?userEmail=ainhoa.mugica%40mongodb.com&sessionGoal=Development+%2F+Test",
+        Features: [{ group: "ThreatSight360", items: ["Entity Management", "Entity Resolution", "Transaction Screening", "Agentic Investigation"] }],
     },
     "67a1000000000000000000003": {
         UserName: "davidpark",
@@ -58,6 +59,7 @@ export const USER_MAP = {
         Currency: "USD",
         IncomeFrequency: null,
         Url: "https://fsi-fraud-detection.industrysolutions.prod.corp.mongodb.com/",
+        Features: [{ group: "ThreatSight360", items: ["Risk Model Management"] }],
     },
     "67a1000000000000000000004": {
         UserName: "sophiachen",
@@ -70,6 +72,7 @@ export const USER_MAP = {
         Currency: "USD",
         IncomeFrequency: null,
         Url:"https://leafy-bank-ui.industrysolutions.prod.corp.mongodb.com/asset-portfolio",
+        Features: ["Asset and Crypto Portfolio Management"],
     },
     "67a1000000000000000000005": {
         UserName: "lucastorres",
@@ -82,6 +85,7 @@ export const USER_MAP = {
         Currency: "USD",
         IncomeFrequency: null,
         Url: "https://fsi-payments-processing.industrysolutions.prod.corp.mongodb.com/",
+        Features: ["Agentic Payments System"],
     },
 };
 
@@ -98,5 +102,5 @@ export const USER_LIST = Object.entries(USER_MAP).map(([id, details]) => ({
     incomeFrequency: details.IncomeFrequency,
     spendingProfile: details.SpendingProfile ?? null,
     url: details.Url ?? null,
-
+    features: details.Features ?? [],
 }));

@@ -26,6 +26,32 @@ const User = ({ user = null, isSelectedUser = false, setOpen, setLocalSelectedUs
             <img src={`/users/${user.id}.png`} alt="User Avatar" />
             <Body className={styles.userName}>{user.name}</Body>
             <Body className={styles.userRole}>{user.role}</Body>
+            {user.spendingProfile && (
+                <span className={`${styles.spendingBadge} ${styles[`spending${user.spendingProfile}`]}`}>
+                    {user.spendingProfile}
+                </span>
+            )}
+            {user.features && user.features.length > 0 && (
+                <>
+                    <hr className={styles.featureDivider} />
+                    <ul className={styles.featureList}>
+                        {user.features.map((f, i) =>
+                            typeof f === 'string' ? (
+                                <li key={i} className={styles.featureItem}>{f}</li>
+                            ) : (
+                                <li key={i} className={styles.featureGroup}>
+                                    <span className={styles.featureGroupName}>{f.group}</span>
+                                    <ul className={styles.featureSubList}>
+                                        {f.items.map((item, j) => (
+                                            <li key={j} className={styles.featureItem}>{item}</li>
+                                        ))}
+                                    </ul>
+                                </li>
+                            )
+                        )}
+                    </ul>
+                </>
+            )}
         </Card>
     );
 };
