@@ -22,6 +22,11 @@ const UserHorizontal = ({ user, isSelectedUser, onSelect }) => (
         <div className={styles.userHorizontalInfo}>
             <span className={styles.userHorizontalName}>{user.name}</span>
             <span className={styles.userHorizontalRole}>{user.role}</span>
+            {user.spendingProfile && (
+                <span className={`${styles.spendingBadge} ${styles[`spending${user.spendingProfile}`]}`}>
+                    {user.spendingProfile}
+                </span>
+            )}
         </div>
     </div>
 );
@@ -80,7 +85,7 @@ const Login = ({ onDone }) => {
                     </Description>
 
                     {/* ── RETAIL ── */}
-                    <Badge variant="blue" className={styles.badgeInfo}>RETAIL USERS</Badge>
+                    <Badge variant="blue" className={styles.badgeInfo}>BANK CUSTOMERS</Badge>
 
                     <div className={styles.retailUsersContainer}>
                         {retailUsers.map(user => (
@@ -94,7 +99,7 @@ const Login = ({ onDone }) => {
                     </div>
 
                     {/* ── BACKOFFICE ── */}
-                    <Badge variant="purple" className={styles.badgeInfo}>BACKOFFICE USERS</Badge>
+                    <Badge variant="purple" className={styles.badgeInfo}>BANK OPERATIONS USERS</Badge>
 
                     <div className={styles.usersContainer}>
                         {backofficeUsers.map(user => (

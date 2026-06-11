@@ -1,7 +1,7 @@
 export const USER_MAP = {
     "65a546ae4a8f64e8f88fb89e": {
         UserName: "fridaklo",
-        Role: "Retail Banking Customer",
+        Role: "Leafy Bank Customer",
         Section: "retail",
         Employer: "Deloitte Mexico",
         EmploymentType: "FullTime",
@@ -9,10 +9,11 @@ export const USER_MAP = {
         IncomeAmount: 5500,
         Currency: "USD",
         IncomeFrequency: "Monthly",
+        SpendingProfile: "Saver",
     },
     "66fe219d625d93a100528224": {
         UserName: "hellyrig",
-        Role: "Retail Banking Customer",
+        Role: "Leafy Bank Customer",
         Section: "retail",
         Employer: null,
         EmploymentType: "Freelance",
@@ -20,6 +21,8 @@ export const USER_MAP = {
         IncomeAmount: null,
         Currency: "USD",
         IncomeFrequency: "Irregular",
+        SpendingProfile: "Spender",
+        
     },
     "67a1000000000000000000001": {
         UserName: "marcowenz",
@@ -93,6 +96,7 @@ export const USER_LIST = Object.entries(USER_MAP).map(([id, details]) => ({
     incomeAmount: details.IncomeAmount,
     currency: details.Currency,
     incomeFrequency: details.IncomeFrequency,
+    spendingProfile: details.SpendingProfile ?? null,
     url: details.Url ?? null,
 
 }));

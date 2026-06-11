@@ -3,9 +3,9 @@
 import React, { useState } from "react";
 import Icon from "@leafygreen-ui/icon";
 import BottomNav from "@/components/BottomNav/BottomNav";
-import DigitalPaymentModal from "@/components/DigitalPaymentModal/DigitalPaymentModal";
-import TransactionModal from "@/components/TransactionModal/TransactionModal";
+import SendMoneyModal from "@/components/SendMoneyModal/SendMoneyModal";
 import LeafyBankAssistant from "@/components/LeafyBankAssistant/LeafyBankAssistant";
+import { useRouter } from "next/navigation";
 
 const mockPaymentMethods = [
   { id: "cc", label: "Credit Card" },
@@ -20,6 +20,8 @@ const mockAccounts = [
   { id: "acc_003", label: "Money Market - 9012" },
 ];
 
+
+
 /**
  * Mobile-only quick-actions bar: the bottom navigation plus the modals it
  * launches (Payments, Transactions, Assistant). Self-contained — drop
@@ -27,18 +29,16 @@ const mockAccounts = [
  * BottomNav's CSS, so the modals are only reachable on mobile.
  */
 export default function MobileActions() {
-  const [digitalPaymentModalOpen, setDigitalPaymentModalOpen] = useState(false);
-  const [transactionModalOpen, setTransactionModalOpen] = useState(false);
+  const [sendMoneyOpen, setSendMoneyOpen] = useState(false);
+  const [sendMoneyInitialView, setSendMoneyInitialView] = useState(null);
   const [assistantOpen, setAssistantOpen] = useState(false);
 
-  const [paymentAmount, setPaymentAmount] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("");
-  const [paymentOriginatorAccount, setPaymentOriginatorAccount] = useState("");
-  const [paymentBeneficiaryAccount, setPaymentBeneficiaryAccount] = useState("");
+  const openSendMoney = (view) => {
+    setSendMoneyInitialView(view);
+    setSendMoneyOpen(true);
+  };
 
-  const [transactionAmount, setTransactionAmount] = useState("");
-  const [transactionOriginatorAccount, setTransactionOriginatorAccount] = useState("");
-  const [transactionBeneficiaryAccount, setTransactionBeneficiaryAccount] = useState("");
+  const router = useRouter();
 
   return (
     <>
@@ -50,13 +50,13 @@ export default function MobileActions() {
             key: "payments",
             label: "Payments",
             icon: <Icon glyph="CreditCard" size="large" />,
-            onClick: () => setDigitalPaymentModalOpen(true),
+            onClick: () => openSendMoney("digital-payment"),
           },
           {
             key: "transactions",
             label: "Transactions",
             icon: <Icon glyph="Coin" size="large" />,
-            onClick: () => setTransactionModalOpen(true),
+            onClick: () => openSendMoney("transfer"),
           },
           {
             key: "assistant",
@@ -65,38 +65,19 @@ export default function MobileActions() {
             onClick: () => setAssistantOpen(true),
           },
           {
-            key: "other",
-            label: "Other Actions",
-            icon: <Icon glyph="Ellipsis" size="large" />,
-            onClick: () => {},
+            key: "portfolio",
+            label: "Portfolio",
+            icon: <Icon glyph="Charts" size="large" />,
+            onClick: () => router.push("/portfolio"),
           },
         ]}
       />
 
-      <DigitalPaymentModal
-        isOpen={digitalPaymentModalOpen}
-        onClose={() => setDigitalPaymentModalOpen(false)}
-        amount={paymentAmount}
-        setAmount={setPaymentAmount}
-        method={paymentMethod}
-        setMethod={setPaymentMethod}
-        originatorAccount={paymentOriginatorAccount}
-        setOriginatorAccount={setPaymentOriginatorAccount}
-        beneficiaryAccount={paymentBeneficiaryAccount}
-        setBeneficiaryAccount={setPaymentBeneficiaryAccount}
+      <SendMoneyModal
+        isOpen={sendMoneyOpen}
+        onClose={() => setSendMoneyOpen(false)}
+        initialView={sendMoneyInitialView}
         paymentMethods={mockPaymentMethods}
-        accounts={mockAccounts}
-      />
-
-      <TransactionModal
-        isOpen={transactionModalOpen}
-        onClose={() => setTransactionModalOpen(false)}
-        amount={transactionAmount}
-        setAmount={setTransactionAmount}
-        originatorAccount={transactionOriginatorAccount}
-        setOriginatorAccount={setTransactionOriginatorAccount}
-        beneficiaryAccount={transactionBeneficiaryAccount}
-        setBeneficiaryAccount={setTransactionBeneficiaryAccount}
         accounts={mockAccounts}
       />
 

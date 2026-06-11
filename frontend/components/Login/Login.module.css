@@ -176,6 +176,26 @@
     overflow: hidden;
 }
 
+.spendingBadge {
+    font-size: 8pt;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-top: 2px;
+    width: fit-content;
+    letter-spacing: 0.3px;
+}
+
+.spendingSaver {
+    background-color: #e3f5e1;
+    color: #2e7d32;
+}
+
+.spendingSpender {
+    background-color: #fff3e0;
+    color: #e65100;
+}
+
 
 /* Remove border-radius when modal is fullscreen */
 @media (max-width: 767.98px) {
