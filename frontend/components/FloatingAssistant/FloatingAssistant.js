@@ -3,18 +3,13 @@
 import { useUser } from "@/lib/context/UserContext";
 import { Body } from "@leafygreen-ui/typography";
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
 import LeafyBankAssistant from "../LeafyBankAssistant/LeafyBankAssistant";
 import styles from "./FloatingAssistant.module.css";
 
 export default function FloatingAssistant() {
   const { selectedUser } = useUser();
-  const pathname = usePathname();
-  // These routes show the mobile bottom nav, which already exposes the
-  // assistant — hide this floating button there on mobile to avoid redundancy.
-  const routesWithBottomNav = ["/", "/accounts", "/credit-cards", "/loans"];
-  const hasBottomNav = routesWithBottomNav.includes(pathname);
   const [modalOpen, setModalOpen] = useState(false);
+
   const [showBubble, setShowBubble] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
 
@@ -36,9 +31,7 @@ export default function FloatingAssistant() {
   return (
     <>
       <div
-        className={`${styles.chatbotButton} ${
-          hasBottomNav ? styles.hideOnMobile : ""
-        }`}
+        className={styles.chatbotButton}
         onClick={toggleChatbot}
       >
         {showBubble && (

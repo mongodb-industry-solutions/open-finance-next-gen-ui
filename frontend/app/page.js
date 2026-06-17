@@ -13,13 +13,13 @@ import ProductCard from "@/components/ProductCard/ProductCard";
 import LeafyBankAssistant from "../components/LeafyBankAssistant/LeafyBankAssistant";
 import Login from "@/components/Login/Login";
 import AccountModal from "@/components/AccountModal/AccountModal";
-import DigitalPaymentModal from "@/components/DigitalPaymentModal/DigitalPaymentModal";
-import TransactionModal from "@/components/TransactionModal/TransactionModal";
+import SendMoneyModal from "@/components/SendMoneyModal/SendMoneyModal";
 import TransactionsTable from "@/components/TransactionsTable/TransactionsTable";
 import BottomNav from "@/components/BottomNav/BottomNav";
 import { useUser } from "@/lib/context/UserContext";
 import { useHomeData, useAccountsPageData } from "@/lib/api/hooks";
 import { formatCurrency } from "@/lib/api/format";
+import MobileActions from "@/components/MobileActions/MobileActions";
 
 
 
@@ -42,27 +42,20 @@ const bankBadgeVariant = (bank) =>
 
 const HomeContent = () => {
   const [modalOpen, setModalOpen] = useState(false);
-  const { selectedUser } = useUser();
+  const { selectedUser, authorizedConsents } = useUser();
+  const hasExternalBank = authorizedConsents.length > 0;
   const { totalBalance, totalDebt, bankAccounts, creditCards, creditScore, loans, loading: homeLoading } = useHomeData();
   const { recentTxns, txLoading } = useAccountsPageData();
   const [pendingPrompt, setPendingPrompt] = useState(null);
   const [accountModalOpen, setAccountModalOpen] = useState(false);
   const [accountBalance, setAccountBalance] = useState("");
   const [accountType, setAccountType] = useState("");
-  const [digitalPaymentModalOpen, setDigitalPaymentModalOpen] = useState(false);
-  const [transactionModalOpen, setTransactionModalOpen] = useState(false);
-  const [paymentAmount, setPaymentAmount] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("");
-  const [paymentOriginatorAccount, setPaymentOriginatorAccount] = useState("");
-  const [paymentBeneficiaryAccount, setPaymentBeneficiaryAccount] = useState("");
-  const [transactionAmount, setTransactionAmount] = useState("");
-  const [transactionOriginatorAccount, setTransactionOriginatorAccount] = useState("");
-  const [transactionBeneficiaryAccount, setTransactionBeneficiaryAccount] = useState("");
+  const [sendMoneyOpen, setSendMoneyOpen] = useState(false);
 
   return (
     <main className={styles.container}>
-      {/* Top 40% */}
-      <section className={styles.topSection}>
+      {/* Top 40% — only visible once an external bank is connected */}
+      {hasExternalBank && <section className={styles.topSection}>
         <div className={styles.productsHeader}>
           <H2>Global Position</H2>
         </div>
@@ -97,104 +90,13 @@ const HomeContent = () => {
               </div>
             </Card>
           </div>
-          {/*}   {creditScore && (
-            <div className={`${styles.card} ${styles.cardEqual}`}>
-              <Card className={styles.leafyCard}>
-                <div className={styles.cardContent}>
-                  <div className={styles.thumbWrap}>
-                    <Image src="/credit.png" alt="Credit Score" width={48} height={48} />
-                  </div>
-                  <div className={styles.cardText}>
-                    <Subtitle>{creditScore.Score}</Subtitle>
-                    <Body className={styles.cardBodyGray}>
-                      Credit Score ({creditScore.Bureau})
-                    </Body>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          )}*/}
+         
         </div>
         <div className={styles.sectionDots}>
           <span className={styles.sectionDot} />
           <span className={styles.sectionDot} />
         </div>
-      </section>
-
-      {/* Middle 20% */}
-      <section className={styles.midSection}>
-        <div className={styles.rowTwo}>
-          {/* <div className={`${styles.card} ${styles.cardEqual}`}>
-           <Card className={styles.leafyCard}>
-              <button
-                onClick={() => {
-                  setPendingPrompt("I want to port my loan to a better rate");
-                  setModalOpen(true);
-                }}
-                className={styles.entitiesButton}
-                aria-label="Switch to a better loan"
-              >
-                <div className={styles.cardContent}>
-                  <div className={styles.thumbWrap}>
-                    <Image
-                      src="/tips.gif"
-                      alt="thumbnail"
-                      width={85}
-                      height={85}
-                    />
-                  </div>
-
-                  <div className={styles.cardText}>
-                    <Subtitle>Switch to a better loan</Subtitle>
-                    <Body className={styles.cardBodyGray}>
-                      Find better rates and move your existing loans with less hassle.
-                    </Body>
-                  </div>
-
-                  <div className={styles.iconRight}>
-                    <Icon glyph="ChevronRight" size="small" />
-                  </div>
-                </div>
-              </button>
-            </Card>
-          </div>*/}
-          <div className={`${styles.card} ${styles.cardEqual}`}>
-            <Card className={styles.leafyCard}>
-              <button
-                onClick={() => {
-                  setPendingPrompt("I want financial advice");
-                  setModalOpen(true);
-                }}
-                className={styles.entitiesButton}
-                aria-label="Get a complete view of your finances"
-              >
-                <div className={styles.cardContent}>
-                  <div className={styles.thumbWrap}>
-                    <Image
-                      src="/credit_card.gif"
-                      alt="thumbnail"
-                      width={70}
-                      height={70}
-                    />
-                  </div>
-
-                  <div className={styles.cardText}>
-                    <Subtitle>Get a complete view of your finances</Subtitle>
-                    <Body className={styles.cardBodyGray}>
-                      Aggregate your other banks accounts in one place and make smarter financial decisions.
-                    </Body>
-                  </div>
-
-                  <div className={styles.iconRight}>
-                    <Icon glyph="ChevronRight" size="small" />
-                  </div>
-                </div>
-              </button>
-            </Card>
-          </div>
-        </div>
-
-      </section>
+      </section>}
 
       {/* Bottom 40% */}
       <section className={styles.bottomSection}>
@@ -313,6 +215,48 @@ const HomeContent = () => {
         </div>
       </section>
 
+       {/* Middle 20% */}
+      <section className={styles.midSection}>
+        <div className={styles.rowTwo}>
+        
+          <div className={`${styles.card} ${styles.cardEqual}`}>
+            <Card className={styles.leafyCard}>
+              <button
+                onClick={() => {
+                  setPendingPrompt("I want financial advice");
+                  setModalOpen(true);
+                }}
+                className={styles.entitiesButton}
+                aria-label="Get a complete view of your finances"
+              >
+                <div className={styles.cardContent}>
+                  <div className={styles.thumbWrap}>
+                    <Image
+                      src="/credit_card.gif"
+                      alt="thumbnail"
+                      width={70}
+                      height={70}
+                    />
+                  </div>
+
+                  <div className={styles.cardText}>
+                    <Subtitle>Get a complete view of your finances</Subtitle>
+                    <Body className={styles.cardBodyGray}>
+                      Aggregate your other banks accounts in one place and make smarter financial decisions.
+                    </Body>
+                  </div>
+
+                  <div className={styles.iconRight}>
+                    <Icon glyph="ChevronRight" size="small" />
+                  </div>
+                </div>
+              </button>
+            </Card>
+          </div>
+        </div>
+
+      </section>
+
       <section className={styles.activitySection}>
         <H3>Recent Activity</H3>
         <TransactionsTable transactions={recentTxns} loading={txLoading} />
@@ -321,73 +265,20 @@ const HomeContent = () => {
       <div className={styles.stickyButtonContainer}>
         <Button
           variant="baseGreen"
-          onClick={() => setDigitalPaymentModalOpen(true)}
+          onClick={() => setSendMoneyOpen(true)}
         >
-          Make Digital Payment
-        </Button>
-        <Button
-          variant="baseGreen"
-          onClick={() => setTransactionModalOpen(true)}
-        >
-          Make Transaction
+          Send Money
         </Button>
       </div>
 
       {/* Mobile-only bottom navigation. Icons are placeholders — swap the
           `icon` values for the final icons when provided. */}
-      <BottomNav
-        items={[
-          {
-            key: "payments",
-            label: "Payments",
-            icon: <Icon glyph="CreditCard" size="large" />,
-            onClick: () => setDigitalPaymentModalOpen(true),
-          },
-          {
-            key: "transactions",
-            label: "Transactions",
-            icon: <Icon glyph="Coin" size="large" />,
-            onClick: () => setTransactionModalOpen(true),
-          },
-          {
-            key: "assistant",
-            label: "Assistant",
-            icon: <Icon glyph="Sparkle" size="large" />,
-            onClick: () => setModalOpen(true),
-          },
-          {
-            key: "other",
-            label: "Other Actions",
-            icon: <Icon glyph="Ellipsis" size="large" />,
-            onClick: () => { },
-          },
-        ]}
-      />
+       <MobileActions />
 
-      <DigitalPaymentModal
-        isOpen={digitalPaymentModalOpen}
-        onClose={() => setDigitalPaymentModalOpen(false)}
-        amount={paymentAmount}
-        setAmount={setPaymentAmount}
-        method={paymentMethod}
-        setMethod={setPaymentMethod}
-        originatorAccount={paymentOriginatorAccount}
-        setOriginatorAccount={setPaymentOriginatorAccount}
-        beneficiaryAccount={paymentBeneficiaryAccount}
-        setBeneficiaryAccount={setPaymentBeneficiaryAccount}
+      <SendMoneyModal
+        isOpen={sendMoneyOpen}
+        onClose={() => setSendMoneyOpen(false)}
         paymentMethods={mockPaymentMethods}
-        accounts={mockAccounts}
-      />
-
-      <TransactionModal
-        isOpen={transactionModalOpen}
-        onClose={() => setTransactionModalOpen(false)}
-        amount={transactionAmount}
-        setAmount={setTransactionAmount}
-        originatorAccount={transactionOriginatorAccount}
-        setOriginatorAccount={setTransactionOriginatorAccount}
-        beneficiaryAccount={transactionBeneficiaryAccount}
-        setBeneficiaryAccount={setTransactionBeneficiaryAccount}
         accounts={mockAccounts}
       />
 
@@ -412,6 +303,11 @@ const HomeContent = () => {
 export default function Home() {
   const { selectedUser, clearUser } = useUser();
   const [loginDone, setLoginDone] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Fresh page load (refresh/new tab) → clear user so Login shows.
   // Client-side navigation (logo click) → flag already set, skip clear.
@@ -422,10 +318,12 @@ export default function Home() {
     }
   }, [clearUser]);
 
-  // Sync loginDone after hydration or user selection
+  // Sync loginDone with user selection state in both directions
   useEffect(() => {
-    if (selectedUser) setLoginDone(true);
+    setLoginDone(!!selectedUser);
   }, [selectedUser]);
+
+  if (!mounted) return null;
 
   return (
     <>

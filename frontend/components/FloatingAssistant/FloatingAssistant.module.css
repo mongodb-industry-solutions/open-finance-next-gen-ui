@@ -114,10 +114,8 @@
   }
 }
 
-/* Hide the floating launcher on mobile where another control (e.g. the home
-   page bottom nav) already exposes the assistant. */
 @media (max-width: 768px) {
-  .hideOnMobile {
+  .chatbotButton {
     display: none;
   }
 }

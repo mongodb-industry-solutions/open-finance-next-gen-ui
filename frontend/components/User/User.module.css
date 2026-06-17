@@ -1,14 +1,13 @@
 .userCard {
-    max-width: 130px;
-    min-width: 105px;
+    max-width: 140px;
+    min-width: 110px;
     width: 100%;
-    height: 150px;
     justify-self: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 110px 0px;
+    justify-content: flex-start;
+    padding: 16px 10px 12px;
 }
 
 .userCard img {
@@ -18,13 +17,15 @@
 
 .userName {
     margin-top: -5px;
+    font-weight: 600;
 }
 
 .userRole {
     font-size: 9pt;
     color: rgb(168, 168, 168);
     font-weight: 500;
-    padding-bottom: 20px;
+    padding-bottom: 4px;
+    text-align: center;
 }
 
 .userSelected {
@@ -34,3 +35,64 @@
 /* .userCard:hover{
     cursor: pointer;
 } */
+
+.spendingBadge {
+    font-size: 8pt;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-top: 4px;
+    width: fit-content;
+    letter-spacing: 0.3px;
+}
+
+.spendingSaver {
+    background-color: #e3f5e1;
+    color: #2e7d32;
+}
+
+.spendingSpender {
+    background-color: #fff3e0;
+    color: #e65100;
+}
+
+.featureDivider {
+    width: 100%;
+    border: none;
+    border-top: 1px solid #e8e8e8;
+    margin: 8px 0 6px;
+}
+
+.featureList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.featureItem {
+    font-size: 10px;
+    color: #888;
+    text-align: center;
+    line-height: 1.4;
+    padding: 1px 0;
+}
+
+.featureGroup {
+    list-style: none;
+    text-align: center;
+}
+
+.featureGroupName {
+    font-size: 10px;
+    font-weight: 700;
+    color: #555;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.featureSubList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
