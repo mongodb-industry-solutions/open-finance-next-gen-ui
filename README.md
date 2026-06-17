@@ -1,14 +1,14 @@
-# Leafy Bank — Open Finance Frontend
+# Leafy Bank V2 — Frontend
 
 Demonstrates how MongoDB Atlas powers a modern Open Finance banking interface — multi-bank account aggregation, AI-assisted consent management, real-time streaming chat, and MongoDB Queryable Encryption visualization, all built with Next.js 15 and MongoDB's LeafyGreen design system.
 
 > **This is one of three interconnected repositories that make up the Leafy Bank Open Finance solution:**
 >
-> | Repository | Description | Port |
-> |------------|-------------|------|
-> | [open-finance-next-gen](https://github.com/mongodb-industry-solutions/open-finance-next-gen) | FastAPI backend — consents, accounts, transactions, Queryable Encryption | 8003 |
+> | Repository                                                                                                                                           | Description                                                                           | Port |
+> | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ---- |
+> | [open-finance-next-gen](https://github.com/mongodb-industry-solutions/open-finance-next-gen)                                                         | FastAPI backend — consents, accounts, transactions, Queryable Encryption              | 8003 |
 > | [leafy-bank-backend-openfinance-reactagent-chatbot](https://github.com/mongodb-industry-solutions/leafy-bank-backend-openfinance-reactagent-chatbot) | LangGraph multi-agent chatbot — consent flows, portability analysis, financial advice | 8080 |
-> | **open-finance-next-gen-ui** (this repo) | Next.js 15 frontend — dashboard, multi-bank views, AI assistant | 3000 |
+> | **open-finance-next-gen-ui** (this repo)                                                                                                             | Next.js 15 frontend — dashboard, multi-bank views, AI assistant                       | 3000 |
 
 ## Where MongoDB Shines
 
@@ -88,7 +88,6 @@ CHATBOT_BACKEND_URL=http://localhost:8080
 ### Setup
 
 1. Ensure you are in the root project directory where the `makefile` is located.
-
 2. Install dependencies:
 
    ```bash
@@ -109,7 +108,7 @@ Start the development server with:
 make dev
 ```
 
-The frontend will be available at <http://localhost:3000>.
+The frontend will be available at [http://localhost:3000](http://localhost:3000).
 
 You can also use other make targets:
 
@@ -133,7 +132,7 @@ To run with Docker:
 docker-compose up --build
 ```
 
-The frontend will be available at <http://localhost:3000>.
+The frontend will be available at [http://localhost:3000](http://localhost:3000).
 
 To manage the container:
 
