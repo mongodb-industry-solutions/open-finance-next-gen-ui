@@ -303,6 +303,11 @@ const HomeContent = () => {
 export default function Home() {
   const { selectedUser, clearUser } = useUser();
   const [loginDone, setLoginDone] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Fresh page load (refresh/new tab) → clear user so Login shows.
   // Client-side navigation (logo click) → flag already set, skip clear.
@@ -313,10 +318,12 @@ export default function Home() {
     }
   }, [clearUser]);
 
-  // Sync loginDone after hydration or user selection
+  // Sync loginDone with user selection state in both directions
   useEffect(() => {
-    if (selectedUser) setLoginDone(true);
+    setLoginDone(!!selectedUser);
   }, [selectedUser]);
+
+  if (!mounted) return null;
 
   return (
     <>
